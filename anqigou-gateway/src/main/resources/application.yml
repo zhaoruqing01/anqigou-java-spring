@@ -1,0 +1,95 @@
+spring:
+  application:
+    name: anqigou-gateway
+  main:
+    web-application-type: reactive
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: public
+      config:
+        server-addr: localhost:8848
+        file-extension: yml
+        namespace: public
+        import-check:
+          enabled: false
+    gateway:
+      # 网关路由配置
+      routes:
+        # 用户服务路由
+        - id: user-service
+          uri: lb://anqigou-user-service
+          predicates:
+            - Path=/api/auth/**,/api/user/**
+          filters:
+            - StripPrefix=1
+
+        # 商品服务路由
+        - id: product-service
+          uri: lb://anqigou-product-service
+          predicates:
+            - Path=/api/products/**
+          filters:
+            - StripPrefix=1
+
+        # 订单服务路由
+        - id: order-service
+          uri: lb://anqigou-order-service
+          predicates:
+            - Path=/api/orders/**,/api/cart/**
+          filters:
+            - StripPrefix=1
+
+        # 支付服务路由
+        - id: payment-service
+          uri: lb://anqigou-payment-service
+          predicates:
+            - Path=/api/payment/**
+          filters:
+            - StripPrefix=1
+
+        # 物流服务路由
+        - id: logistics-service
+          uri: lb://anqigou-logistics-service
+          predicates:
+            - Path=/api/logistics/**
+          filters:
+            - StripPrefix=1
+
+        # 商家服务路由
+        - id: seller-service
+          uri: lb://anqigou-seller-service
+          predicates:
+            - Path=/api/seller/**
+          filters:
+            - StripPrefix=1
+
+        # 管理员服务路由
+        - id: admin-service
+          uri: lb://anqigou-admin-service
+          predicates:
+            - Path=/api/admin/**
+          filters:
+            - StripPrefix=1
+
+      # 默认过滤器
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter:
+              replenish-rate: 10
+              burst-capacity: 20
+            key-resolver: "#{@ipKeyResolver}"
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+logging:
+  level:
+    root: info
+    com.anqigou: debug
+    org.springframework.cloud.gateway: debug

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anqigou.user.mapper.AddressMapper">
+    
+    <!-- 查询用户的所有地址 -->
+    <select id="selectByUserId" parameterType="String" resultType="com.anqigou.user.entity.Address">
+        SELECT * FROM user_address WHERE user_id = #{userId} ORDER BY is_default DESC, update_time DESC
+    </select>
+    
+    <!-- 查询用户的默认地址 -->
+    <select id="selectDefaultByUserId" parameterType="String" resultType="com.anqigou.user.entity.Address">
+        SELECT * FROM user_address WHERE user_id = #{userId} AND is_default = 1
+    </select>
+</mapper>
