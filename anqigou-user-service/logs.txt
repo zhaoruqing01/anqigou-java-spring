@@ -1,0 +1,47 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::               (v2.7.14)
+
+2025-11-22 15:24:11.854  INFO 34068 --- [           main] com.anqigou.user.UserServiceApplication  : Starting UserServiceApplication using Java 11.0.7 on zhaoruqing with PID 34068 (D:\Project\anqigou-app\anqigou-java-spring\anqigou-user-service\target\anqigou-user-service-1.0.0.jar started by 35291 in d:\Project\anqigou-app\anqigou-java-spring\anqigou-user-service)
+2025-11-22 15:24:11.858 DEBUG 34068 --- [           main] com.anqigou.user.UserServiceApplication  : Running with Spring Boot v2.7.14, Spring v5.3.29
+2025-11-22 15:24:11.859  INFO 34068 --- [           main] com.anqigou.user.UserServiceApplication  : No active profile set, falling back to 1 default profile: "default"
+2025-11-22 15:24:12.880  INFO 34068 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2025-11-22 15:24:12.883  INFO 34068 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-11-22 15:24:12.913  INFO 34068 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 6 ms. Found 0 Redis repository interfaces.
+2025-11-22 15:24:13.217  INFO 34068 --- [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=4c065d2a-ff84-3e58-9d3d-03bf76ac1eb6
+2025-11-22 15:24:14.198  INFO 34068 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8081 (http)
+2025-11-22 15:24:14.199  INFO 34068 --- [           main] o.a.catalina.core.AprLifecycleListener   : Loaded Apache Tomcat Native library [1.3.1] using APR version [1.7.4].
+2025-11-22 15:24:14.199  INFO 34068 --- [           main] o.a.catalina.core.AprLifecycleListener   : APR capabilities: IPv6 [true], sendfile [true], accept filters [false], random [true], UDS [true].
+2025-11-22 15:24:14.199  INFO 34068 --- [           main] o.a.catalina.core.AprLifecycleListener   : APR/OpenSSL configuration: useAprConnector [false], useOpenSSL [true]
+2025-11-22 15:24:14.203  INFO 34068 --- [           main] o.a.catalina.core.AprLifecycleListener   : OpenSSL successfully initialized [OpenSSL 3.0.14 4 Jun 2024]
+2025-11-22 15:24:14.214  INFO 34068 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-11-22 15:24:14.214  INFO 34068 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.78]
+2025-11-22 15:24:14.297  INFO 34068 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-11-22 15:24:14.297  INFO 34068 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2331 ms
+Logging initialized using 'class org.apache.ibatis.logging.stdout.StdOutImpl' adapter.
+2025-11-22 15:24:14.504  INFO 34068 --- [           main] c.a.d.s.b.a.DruidDataSourceAutoConfigure : Init DruidDataSource
+2025-11-22 15:24:15.146  INFO 34068 --- [           main] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} inited
+Property 'mapperLocations' was not specified.
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.3 
+2025-11-22 15:24:17.571  WARN 34068 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 863e13c9-2977-4c26-a7c3-f70dbaa36225
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-11-22 15:24:17.716  INFO 34068 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4eb9f2af, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4a481728, org.springframework.security.web.context.SecurityContextPersistenceFilter@2d85fb64, org.springframework.security.web.header.HeaderWriterFilter@939ff41, org.springframework.security.web.csrf.CsrfFilter@3e36b7a0, org.springframework.security.web.authentication.logout.LogoutFilter@2db2a05f, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@58f4b31a, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@45b15381, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@4ace284d, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@7affc159, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@497b560e, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@39ffda4a, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@77fa9381, org.springframework.security.web.session.SessionManagementFilter@48a663e9, org.springframework.security.web.access.ExceptionTranslationFilter@d257579, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@67e25252]
+2025-11-22 15:24:19.265  INFO 34068 --- [           main] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2025-11-22 15:24:19.312  INFO 34068 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8081 (http) with context path ''
+2025-11-22 15:24:20.849  INFO 34068 --- [           main] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2025-11-22 15:24:20.860  INFO 34068 --- [           main] com.anqigou.user.UserServiceApplication  : Started UserServiceApplication in 11.245 seconds (JVM running for 11.837)
+2025-11-22 15:24:41.104  INFO 34068 --- [nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-22 15:24:41.106  INFO 34068 --- [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-11-22 15:24:41.106  INFO 34068 --- [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms

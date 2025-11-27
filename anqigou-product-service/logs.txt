@@ -1,0 +1,65 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::               (v2.7.14)
+
+2025-11-22 15:24:34.126  INFO 34320 --- [           main] c.a.product.ProductServiceApplication    : Starting ProductServiceApplication using Java 11.0.7 on zhaoruqing with PID 34320 (D:\Project\anqigou-app\anqigou-java-spring\anqigou-product-service\target\anqigou-product-service-1.0.0.jar started by 35291 in d:\Project\anqigou-app\anqigou-java-spring\anqigou-product-service)
+2025-11-22 15:24:34.129 DEBUG 34320 --- [           main] c.a.product.ProductServiceApplication    : Running with Spring Boot v2.7.14, Spring v5.3.29
+2025-11-22 15:24:34.129  INFO 34320 --- [           main] c.a.product.ProductServiceApplication    : No active profile set, falling back to 1 default profile: "default"
+2025-11-22 15:24:34.998  INFO 34320 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2025-11-22 15:24:35.000  INFO 34320 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-11-22 15:24:35.022  INFO 34320 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 5 ms. Found 0 Redis repository interfaces.
+2025-11-22 15:24:35.278  INFO 34320 --- [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=376f1ab0-5190-34e6-abe9-034c0936036d
+2025-11-22 15:24:36.284  INFO 34320 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8083 (http)
+2025-11-22 15:24:36.286  INFO 34320 --- [           main] o.a.catalina.core.AprLifecycleListener   : Loaded Apache Tomcat Native library [1.3.1] using APR version [1.7.4].
+2025-11-22 15:24:36.286  INFO 34320 --- [           main] o.a.catalina.core.AprLifecycleListener   : APR capabilities: IPv6 [true], sendfile [true], accept filters [false], random [true], UDS [true].
+2025-11-22 15:24:36.286  INFO 34320 --- [           main] o.a.catalina.core.AprLifecycleListener   : APR/OpenSSL configuration: useAprConnector [false], useOpenSSL [true]
+2025-11-22 15:24:36.289  INFO 34320 --- [           main] o.a.catalina.core.AprLifecycleListener   : OpenSSL successfully initialized [OpenSSL 3.0.14 4 Jun 2024]
+2025-11-22 15:24:36.300  INFO 34320 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-11-22 15:24:36.300  INFO 34320 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.78]
+2025-11-22 15:24:36.386  INFO 34320 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-11-22 15:24:36.386  INFO 34320 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2210 ms
+2025-11-22 15:24:36.556  INFO 34320 --- [           main] c.a.d.s.b.a.DruidDataSourceAutoConfigure : Init DruidDataSource
+2025-11-22 15:24:37.207  INFO 34320 --- [           main] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} inited
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.3 
+2025-11-22 15:24:41.441  INFO 34320 --- [           main] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2025-11-22 15:24:41.510  INFO 34320 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8083 (http) with context path ''
+2025-11-22 15:24:43.418  INFO 34320 --- [           main] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2025-11-22 15:24:43.432  INFO 34320 --- [           main] c.a.product.ProductServiceApplication    : Started ProductServiceApplication in 11.401 seconds (JVM running for 11.981)
+2025-11-22 15:24:48.628  INFO 34320 --- [nio-8083-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-22 15:24:48.628  INFO 34320 --- [nio-8083-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-11-22 15:24:48.629  INFO 34320 --- [nio-8083-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-11-22 15:24:48.942 DEBUG 34320 --- [nio-8083-exec-1] c.a.p.mapper.ProductMapper.selectList    : ==>  Preparing: SELECT id,seller_id,category_id,name,brand,description,price,original_price,stock,sold_count,rating,rating_count,main_image,images,video_url,status,shelf_time,shelf_off_time,create_time,update_time,deleted FROM product WHERE deleted=0 AND (deleted = ? AND status = ?) ORDER BY sold_count DESC LIMIT 10
+2025-11-22 15:24:48.980 DEBUG 34320 --- [nio-8083-exec-1] c.a.p.mapper.ProductMapper.selectList    : ==> Parameters: 0(Integer), 1(Integer)
+2025-11-22 15:24:49.022 DEBUG 34320 --- [nio-8083-exec-1] c.a.p.mapper.ProductMapper.selectList    : <==      Total: 10
+2025-11-22 15:25:38.647 DEBUG 34320 --- [nio-8083-exec-2] c.a.p.mapper.ProductMapper.selectList    : ==>  Preparing: SELECT id,seller_id,category_id,name,brand,description,price,original_price,stock,sold_count,rating,rating_count,main_image,images,video_url,status,shelf_time,shelf_off_time,create_time,update_time,deleted FROM product WHERE deleted=0 AND (deleted = ? AND status = ?) ORDER BY sold_count DESC LIMIT 10
+2025-11-22 15:25:38.648 DEBUG 34320 --- [nio-8083-exec-2] c.a.p.mapper.ProductMapper.selectList    : ==> Parameters: 0(Integer), 1(Integer)
+2025-11-22 15:25:38.655 DEBUG 34320 --- [nio-8083-exec-2] c.a.p.mapper.ProductMapper.selectList    : <==      Total: 10
+2025-11-22 15:28:55.917 DEBUG 34320 --- [nio-8083-exec-4] c.a.p.mapper.ProductMapper.selectById    : ==>  Preparing: SELECT id,seller_id,category_id,name,brand,description,price,original_price,stock,sold_count,rating,rating_count,main_image,images,video_url,status,shelf_time,shelf_off_time,create_time,update_time,deleted FROM product WHERE id=? AND deleted=0
+2025-11-22 15:28:55.917 DEBUG 34320 --- [nio-8083-exec-4] c.a.p.mapper.ProductMapper.selectById    : ==> Parameters: prod_uuid_003(String)
+2025-11-22 15:28:55.922 DEBUG 34320 --- [nio-8083-exec-4] c.a.p.mapper.ProductMapper.selectById    : <==      Total: 1
+2025-11-22 15:28:55.925 DEBUG 34320 --- [nio-8083-exec-4] c.a.p.m.ProductSkuMapper.selectList      : ==>  Preparing: SELECT id,product_id,spec_name,spec_value_json,price,stock,barcode,create_time,update_time,deleted FROM product_sku WHERE deleted=0 AND (product_id = ? AND deleted = ?)
+2025-11-22 15:28:55.925 DEBUG 34320 --- [nio-8083-exec-4] c.a.p.m.ProductSkuMapper.selectList      : ==> Parameters: prod_uuid_003(String), 0(Integer)
+2025-11-22 15:28:55.927 DEBUG 34320 --- [nio-8083-exec-4] c.a.p.m.ProductSkuMapper.selectList      : <==      Total: 1
+2025-11-22 15:33:05.524 DEBUG 34320 --- [nio-8083-exec-6] c.a.p.mapper.ProductMapper.selectById    : ==>  Preparing: SELECT id,seller_id,category_id,name,brand,description,price,original_price,stock,sold_count,rating,rating_count,main_image,images,video_url,status,shelf_time,shelf_off_time,create_time,update_time,deleted FROM product WHERE id=? AND deleted=0
+2025-11-22 15:33:05.525 DEBUG 34320 --- [nio-8083-exec-6] c.a.p.mapper.ProductMapper.selectById    : ==> Parameters: prod_uuid_003(String)
+2025-11-22 15:33:05.529 DEBUG 34320 --- [nio-8083-exec-6] c.a.p.mapper.ProductMapper.selectById    : <==      Total: 1
+2025-11-22 15:33:05.531 DEBUG 34320 --- [nio-8083-exec-6] c.a.p.m.ProductSkuMapper.selectList      : ==>  Preparing: SELECT id,product_id,spec_name,spec_value_json,price,stock,barcode,create_time,update_time,deleted FROM product_sku WHERE deleted=0 AND (product_id = ? AND deleted = ?)
+2025-11-22 15:33:05.532 DEBUG 34320 --- [nio-8083-exec-6] c.a.p.m.ProductSkuMapper.selectList      : ==> Parameters: prod_uuid_003(String), 0(Integer)
+2025-11-22 15:33:05.533 DEBUG 34320 --- [nio-8083-exec-6] c.a.p.m.ProductSkuMapper.selectList      : <==      Total: 1
+2025-11-22 15:33:09.926 DEBUG 34320 --- [nio-8083-exec-7] c.a.p.mapper.ProductMapper.selectPage    : ==>  Preparing: SELECT id,seller_id,category_id,name,brand,description,price,original_price,stock,sold_count,rating,rating_count,main_image,images,video_url,status,shelf_time,shelf_off_time,create_time,update_time,deleted FROM product WHERE deleted=0 AND (deleted = ? AND status = ?) ORDER BY create_time DESC
+2025-11-22 15:33:09.928 DEBUG 34320 --- [nio-8083-exec-7] c.a.p.mapper.ProductMapper.selectPage    : ==> Parameters: 0(Integer), 1(Integer)
+2025-11-22 15:33:09.934 DEBUG 34320 --- [nio-8083-exec-7] c.a.p.mapper.ProductMapper.selectPage    : <==      Total: 20
+2025-11-22 15:33:34.031 DEBUG 34320 --- [nio-8083-exec-8] c.a.p.mapper.ProductMapper.selectById    : ==>  Preparing: SELECT id,seller_id,category_id,name,brand,description,price,original_price,stock,sold_count,rating,rating_count,main_image,images,video_url,status,shelf_time,shelf_off_time,create_time,update_time,deleted FROM product WHERE id=? AND deleted=0
+2025-11-22 15:33:34.031 DEBUG 34320 --- [nio-8083-exec-8] c.a.p.mapper.ProductMapper.selectById    : ==> Parameters: prod_uuid_015(String)
+2025-11-22 15:33:34.033 DEBUG 34320 --- [nio-8083-exec-8] c.a.p.mapper.ProductMapper.selectById    : <==      Total: 1
+2025-11-22 15:33:34.036 DEBUG 34320 --- [nio-8083-exec-8] c.a.p.m.ProductSkuMapper.selectList      : ==>  Preparing: SELECT id,product_id,spec_name,spec_value_json,price,stock,barcode,create_time,update_time,deleted FROM product_sku WHERE deleted=0 AND (product_id = ? AND deleted = ?)
+2025-11-22 15:33:34.036 DEBUG 34320 --- [nio-8083-exec-8] c.a.p.m.ProductSkuMapper.selectList      : ==> Parameters: prod_uuid_015(String), 0(Integer)
+2025-11-22 15:33:34.039 DEBUG 34320 --- [nio-8083-exec-8] c.a.p.m.ProductSkuMapper.selectList      : <==      Total: 1
