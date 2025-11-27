@@ -34,7 +34,7 @@ public class AdminController {
      * 审核商家
      */
     @PostMapping("/sellers/{sellerId}/approve")
-    public ApiResponse<Void> approveSeller(@PathVariable String sellerId,
+    public ApiResponse<String> approveSeller(@PathVariable String sellerId,
                                           @RequestParam boolean approved,
                                           @RequestParam(required = false) String rejectReason,
                                           @RequestAttribute String adminId) {
@@ -57,7 +57,7 @@ public class AdminController {
      * 审核商品
      */
     @PostMapping("/products/{productId}/approve")
-    public ApiResponse<Void> approveProduct(@PathVariable String productId,
+    public ApiResponse<String> approveProduct(@PathVariable String productId,
                                            @RequestParam boolean approved,
                                            @RequestParam(required = false) String rejectReason,
                                            @RequestAttribute String adminId) {
@@ -89,7 +89,7 @@ public class AdminController {
      * 处理用户反馈
      */
     @PostMapping("/feedback/{feedbackId}/reply")
-    public ApiResponse<Void> handleUserFeedback(@PathVariable String feedbackId,
+    public ApiResponse<String> handleUserFeedback(@PathVariable String feedbackId,
                                                @RequestParam String reply,
                                                @RequestAttribute String adminId) {
         adminService.handleUserFeedback(feedbackId, reply);

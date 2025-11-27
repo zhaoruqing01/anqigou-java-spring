@@ -92,6 +92,16 @@ public class User {
      */
     private String lastLoginIp;
     
+    /**
+     * 个性化推荐开关（0-关闭，1-开启）
+     */
+    private Integer personalizedRecommendation;
+    
+    /**
+     * 位置授权开关（0-关闭，1-开启）
+     */
+    private Integer locationAuthorization;
+    
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
     

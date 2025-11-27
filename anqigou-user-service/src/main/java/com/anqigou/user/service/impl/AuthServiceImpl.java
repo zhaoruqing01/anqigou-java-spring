@@ -239,6 +239,8 @@ public class AuthServiceImpl implements AuthService {
                 .totalConsumption(user.getTotalConsumption())
                 .availablePoints(user.getAvailablePoints())
                 .lastLoginTime(user.getLastLoginTime() != null ? user.getLastLoginTime().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli() : null)
+                .personalizedRecommendation(user.getPersonalizedRecommendation())
+                .locationAuthorization(user.getLocationAuthorization())
                 .build();
     }
     
@@ -258,6 +260,14 @@ public class AuthServiceImpl implements AuthService {
         
         if (StringUtil.isNotBlank(userInfo.getAvatar())) {
             user.setAvatar(userInfo.getAvatar());
+        }
+        
+        if (userInfo.getPersonalizedRecommendation() != null) {
+            user.setPersonalizedRecommendation(userInfo.getPersonalizedRecommendation());
+        }
+        
+        if (userInfo.getLocationAuthorization() != null) {
+            user.setLocationAuthorization(userInfo.getLocationAuthorization());
         }
         
         userMapper.updateById(user);

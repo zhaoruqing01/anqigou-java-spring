@@ -239,11 +239,11 @@ public class OrderServiceImpl implements OrderService {
             throw new BizException(404, "订单不存在");
         }
         
-        if (!"SHIPPED".equals(order.getStatus())) {
+        if (!AppConstants.OrderStatus.PENDING_RECEIPT.equals(order.getStatus())) {
             throw new BizException(400, "只能确认已发货订单");
         }
         
-        order.setStatus("COMPLETED");
+        order.setStatus(AppConstants.OrderStatus.COMPLETED);
         order.setSignedTime(LocalDateTime.now());
         order.setUpdateTime(LocalDateTime.now());
         orderMapper.updateById(order);

@@ -18,6 +18,8 @@ CREATE TABLE `user` (
   `status` tinyint DEFAULT 0 COMMENT '账户状态（0-正常，1-禁用）',
   `last_login_time` datetime COMMENT '最后登录时间',
   `last_login_ip` varchar(50) COMMENT '最后登录IP',
+  `personalized_recommendation` tinyint DEFAULT 1 COMMENT '个性化推荐开关（0-关闭，1-开启）',
+  `location_authorization` tinyint DEFAULT 1 COMMENT '位置授权开关（0-关闭，1-开启）',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除（0-未删除，1-已删除）',
@@ -262,6 +264,23 @@ CREATE TABLE `seller` (
   KEY `idx_user_id` (`user_id`),
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商家表';
+
+-- 设备管理表
+CREATE TABLE `user_device` (
+  `id` varchar(36) NOT NULL COMMENT '设备ID',
+  `user_id` varchar(36) NOT NULL COMMENT '用户ID',
+  `device_name` varchar(100) COMMENT '设备名称',
+  `device_type` varchar(50) COMMENT '设备类型（如：android、ios、web）',
+  `device_token` varchar(200) NOT NULL COMMENT '设备令牌',
+  `login_ip` varchar(50) COMMENT '登录IP',
+  `login_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '登录时间',
+  `last_active_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后活跃时间',
+  `status` tinyint DEFAULT 1 COMMENT '状态（0-已下线，1-在线）',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_device_token` (`device_token`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户设备管理表';
 
 -- 创建索引以提高查询性能
 CREATE INDEX idx_product_seller ON product(seller_id);
