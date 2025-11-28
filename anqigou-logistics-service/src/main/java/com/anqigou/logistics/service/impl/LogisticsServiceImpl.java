@@ -136,10 +136,13 @@ public class LogisticsServiceImpl implements LogisticsService {
     @Override
     @Transactional
     public void shipOrder(String orderId, String courierCompany, String trackingNo) {
+        // 生成订单号（简化版本，实际应该从订单服务获取）
+        String orderNo = "ORD" + orderId.substring(0, Math.min(8, orderId.length()));
+        
         Logistics logistics = Logistics.builder()
                 .id(UUID.randomUUID().toString())
                 .orderId(orderId)
-                .orderNo("") // TODO: 从订单服务获取订单号
+                .orderNo(orderNo)
                 .courierCompany(courierCompany)
                 .trackingNo(trackingNo)
                 .status(AppConstants.LogisticsStatus.SHIPPED)
@@ -152,6 +155,8 @@ public class LogisticsServiceImpl implements LogisticsService {
         
         // 添加初始轨迹
         addLogisticsTrack(logistics.getId(), trackingNo, "", "", "商家已发货");
+        
+        log.info("物流信息已创建: orderId={}, orderNo={}, trackingNo={}", orderId, orderNo, trackingNo);
     }
     
     @Override
@@ -248,7 +253,7 @@ public class LogisticsServiceImpl implements LogisticsService {
         } else if ("signed".equals(status)) {
             return "已签收";
         } else if ("exception".equals(status)) {
-            return "一常";
+            return "异常";
         } else {
             return "未知状态";
         }

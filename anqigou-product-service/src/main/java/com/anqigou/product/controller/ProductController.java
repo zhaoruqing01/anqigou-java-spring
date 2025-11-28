@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.anqigou.common.response.ApiResponse;
 import com.anqigou.product.dto.ProductDetailDTO;
 import com.anqigou.product.dto.ProductListItemDTO;
+import com.anqigou.product.dto.SkuStockDTO;
 import com.anqigou.product.entity.ProductCategory;
 import com.anqigou.product.entity.ProductReview;
 import com.anqigou.product.service.ProductService;
@@ -138,5 +139,34 @@ public class ProductController {
     public ApiResponse<Map<String, Object>> getProductReviewStats(@PathVariable String productId) {
         Map<String, Object> stats = productService.getProductReviewStats(productId);
         return ApiResponse.success(stats);
+    }
+    
+    /**
+     * 批量获取SKU库存信息（用于订单服务调用）
+     */
+    @GetMapping("/sku/batch-stock")
+    public ApiResponse<List<SkuStockDTO>> batchGetSkuStock(@RequestParam List<String> skuIds) {
+        List<SkuStockDTO> skuStocks = productService.batchGetSkuStock(skuIds);
+        return ApiResponse.success(skuStocks);
+    }
+    
+    /**
+     * 扣减库存（用于订单服务调用）
+     */
+    @GetMapping("/sku/{skuId}/deduct-stock")
+    public ApiResponse<String> deductStock(@PathVariable String skuId, 
+                                          @RequestParam Integer quantity) {
+        productService.deductStock(skuId, quantity);
+        return ApiResponse.success("库存扣减成功");
+    }
+    
+    /**
+     * 归还库存（用于订单取消时调用）
+     */
+    @GetMapping("/sku/{skuId}/return-stock")
+    public ApiResponse<String> returnStock(@PathVariable String skuId, 
+                                          @RequestParam Integer quantity) {
+        productService.returnStock(skuId, quantity);
+        return ApiResponse.success("库存归还成功");
     }
 }

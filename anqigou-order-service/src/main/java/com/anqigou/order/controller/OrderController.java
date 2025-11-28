@@ -6,11 +6,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.anqigou.common.response.ApiResponse;
+import com.anqigou.order.dto.CreateOrderRequest;
 import com.anqigou.order.service.OrderService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
@@ -32,11 +34,9 @@ public class OrderController {
      * 创建订单
      */
     @PostMapping("/create")
-    public ApiResponse<String> createOrder(@RequestParam String userId,
-                                          @RequestParam String addressId,
-                                          @RequestParam(defaultValue = "1") int paymentMethod,
-                                          @RequestParam(required = false) String remark) {
-        String orderId = orderService.createOrder(userId, addressId, paymentMethod, remark);
+    public ApiResponse<String> createOrder(@RequestAttribute String userId,
+                                          @RequestBody CreateOrderRequest request) {
+        String orderId = orderService.createOrder(userId, request);
         return ApiResponse.success("订单创建成功", orderId);
     }
     
@@ -79,5 +79,26 @@ public class OrderController {
                                            @RequestAttribute String userId) {
         orderService.confirmReceipt(orderId, userId);
         return ApiResponse.success("订单已签收");
+    }
+    
+    /**
+     * 更新订单支付状态（供支付服务调用）
+     */
+    @GetMapping("/{orderId}/pay/{paymentNo}")
+    public ApiResponse<Void> updateOrderPaymentStatus(@PathVariable String orderId,
+                                                      @PathVariable String paymentNo) {
+        orderService.updatePaymentStatus(orderId, paymentNo);
+        return ApiResponse.success("订单支付状态已更新");
+    }
+    
+    /**
+     * 订单发货（供商家使用）
+     */
+    @PostMapping("/{orderId}/ship")
+    public ApiResponse<String> shipOrder(@PathVariable String orderId,
+                                        @RequestParam String courierCompany,
+                                        @RequestParam String trackingNo) {
+        orderService.shipOrder(orderId, courierCompany, trackingNo);
+        return ApiResponse.success("订单已发货");
     }
 }

@@ -13,6 +13,7 @@ import com.anqigou.common.exception.BizException;
 import com.anqigou.product.dto.ProductDetailDTO;
 import com.anqigou.product.dto.ProductListItemDTO;
 import com.anqigou.product.dto.ProductSkuDTO;
+import com.anqigou.product.dto.SkuStockDTO;
 import com.anqigou.product.entity.Product;
 import com.anqigou.product.entity.ProductCategory;
 import com.anqigou.product.entity.ProductReview;
@@ -293,5 +294,79 @@ public class ProductServiceImpl implements ProductService {
         }
         
         return stats;
+    }
+    
+    @Override
+    public List<SkuStockDTO> batchGetSkuStock(List<String> skuIds) {
+        if (skuIds == null || skuIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        QueryWrapper<ProductSku> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", skuIds)
+                .eq("deleted", 0);
+        
+        List<ProductSku> skus = productSkuMapper.selectList(queryWrapper);
+        
+        return skus.stream()
+                .map(sku -> {
+                    // 查询商品信息
+                    Product product = productMapper.selectById(sku.getProductId());
+                    
+                    return SkuStockDTO.builder()
+                            .skuId(sku.getId())
+                            .productId(sku.getProductId())
+                            .productName(product != null ? product.getName() : "未知商品")
+                            .specName(sku.getSpecName())
+                            .specValueJson(sku.getSpecValueJson())
+                            .price(sku.getPrice())
+                            .stock(sku.getStock())
+                            .sellerId(product != null ? product.getSellerId() : "default-seller")
+                            .mainImage(product != null ? product.getMainImage() : "")
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public void deductStock(String skuId, Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new BizException(400, "扣减数量必须大于0");
+        }
+        
+        ProductSku sku = productSkuMapper.selectById(skuId);
+        
+        if (sku == null || sku.getDeleted() == 1) {
+            throw new BizException(404, "SKU不存在");
+        }
+        
+        if (sku.getStock() < quantity) {
+            throw new BizException(400, "库存不足，当前库存：" + sku.getStock());
+        }
+        
+        // 扣减库存
+        sku.setStock(sku.getStock() - quantity);
+        productSkuMapper.updateById(sku);
+        
+        log.info("扣减库存成功: skuId={}, quantity={}, remainStock={}", skuId, quantity, sku.getStock());
+    }
+    
+    @Override
+    public void returnStock(String skuId, Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new BizException(400, "归还数量必须大于0");
+        }
+        
+        ProductSku sku = productSkuMapper.selectById(skuId);
+        
+        if (sku == null || sku.getDeleted() == 1) {
+            throw new BizException(404, "SKU不存在");
+        }
+        
+        // 归还库存
+        sku.setStock(sku.getStock() + quantity);
+        productSkuMapper.updateById(sku);
+        
+        log.info("归还库存成功: skuId={}, quantity={}, currentStock={}", skuId, quantity, sku.getStock());
     }
 }

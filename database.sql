@@ -344,6 +344,75 @@ CREATE TABLE `feedback` (
   KEY `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='意见反馈表';
 
+-- 物流信息表
+CREATE TABLE `logistics` (
+  `id` varchar(36) NOT NULL COMMENT '物流ID',
+  `order_id` varchar(36) NOT NULL COMMENT '订单ID',
+  `order_no` varchar(20) NOT NULL COMMENT '订单号',
+  `courier_company` varchar(50) NOT NULL COMMENT '快递公司',
+  `tracking_no` varchar(100) NOT NULL COMMENT '快递单号',
+  `sender_name` varchar(50) COMMENT '发件人姓名',
+  `sender_phone` varchar(11) COMMENT '发件人手机号',
+  `sender_province` varchar(50) COMMENT '发件省份',
+  `sender_city` varchar(50) COMMENT '发件城市',
+  `sender_address` varchar(500) COMMENT '发件详细地址',
+  `receiver_name` varchar(50) COMMENT '收件人姓名',
+  `receiver_phone` varchar(11) COMMENT '收件人手机号',
+  `receiver_province` varchar(50) COMMENT '收件省份',
+  `receiver_city` varchar(50) COMMENT '收件城市',
+  `receiver_address` varchar(500) COMMENT '收件详细地址',
+  `status` varchar(20) DEFAULT 'pending' COMMENT '物流状态（pending-待发货，shipped-已发货，transit-运输中，delivering-派送中，signed-已签收，exception-异常）',
+  `shipped_time` datetime COMMENT '发货时间',
+  `signed_time` datetime COMMENT '签收时间',
+  `last_update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_tracking_no` (`tracking_no`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='物流信息表';
+
+-- 物流轨迹表
+CREATE TABLE `logistics_track` (
+  `id` varchar(36) NOT NULL COMMENT '轨迹ID',
+  `logistics_id` varchar(36) NOT NULL COMMENT '物流ID',
+  `tracking_no` varchar(100) NOT NULL COMMENT '快递单号',
+  `operate_time` datetime NOT NULL COMMENT '操作时间',
+  `operate_city` varchar(50) COMMENT '操作城市',
+  `operate_location` varchar(200) COMMENT '操作地点',
+  `description` varchar(500) NOT NULL COMMENT '轨迹描述',
+  `courier_name` varchar(50) COMMENT '快递员姓名',
+  `courier_phone` varchar(11) COMMENT '快递员手机号',
+  `sort_order` int DEFAULT 0 COMMENT '排序号',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_logistics_id` (`logistics_id`),
+  KEY `idx_operate_time` (`operate_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='物流轨迹表';
+
+-- 物流评价表
+CREATE TABLE `logistics_evaluation` (
+  `id` varchar(36) NOT NULL COMMENT '评价ID',
+  `logistics_id` varchar(36) NOT NULL COMMENT '物流ID',
+  `order_id` varchar(36) NOT NULL COMMENT '订单ID',
+  `user_id` varchar(36) NOT NULL COMMENT '用户ID',
+  `speed_rating` tinyint NOT NULL COMMENT '物流速度评分（1-5分）',
+  `service_rating` tinyint NOT NULL COMMENT '快递员服务评分（1-5分）',
+  `quality_rating` tinyint NOT NULL COMMENT '商品完好度评分（1-5分）',
+  `overall_rating` decimal(3,2) NOT NULL COMMENT '综合评分',
+  `content` longtext COMMENT '评价内容',
+  `images` longtext COMMENT '评价图片（JSON数组）',
+  `is_anonymous` tinyint DEFAULT 0 COMMENT '是否匿名（0-否，1-是）',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_logistics_id` (`logistics_id`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='物流评价表';
+
 -- 创建索引以提高查询性能
 CREATE INDEX idx_product_seller ON product(seller_id);
 CREATE INDEX idx_product_category ON product(category_id);
@@ -357,3 +426,6 @@ CREATE INDEX idx_after_sale_seller ON after_sale_apply(seller_id);
 CREATE INDEX idx_after_sale_status ON after_sale_apply(status);
 CREATE INDEX idx_feedback_user ON feedback(user_id);
 CREATE INDEX idx_feedback_status ON feedback(status);
+CREATE INDEX idx_logistics_order ON logistics(order_id);
+CREATE INDEX idx_logistics_status ON logistics(status);
+CREATE INDEX idx_logistics_track_logistics ON logistics_track(logistics_id);

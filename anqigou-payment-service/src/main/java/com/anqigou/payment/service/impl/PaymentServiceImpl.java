@@ -36,6 +36,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private AlipayConfig alipayConfig;
     
+    @Autowired
+    private com.anqigou.payment.client.OrderServiceClient orderServiceClient;
+    
     @Override
     @Transactional
     public Object wechatPayPrepare(PaymentRequest request) {
@@ -187,9 +190,21 @@ public class PaymentServiceImpl implements PaymentService {
     
     @Override
     public boolean validateAmount(String orderId, long amount) {
-        // TODO: 从订单服务查询订单金额进行校验
-        // 暂时返回 true
-        return amount > 0;
+        try {
+            // 从订单服务查询订单信息
+            com.anqigou.common.response.ApiResponse<Object> response = orderServiceClient.getOrderInfo(orderId);
+            if (response == null || response.getData() == null) {
+                log.warn("Order not found: {}", orderId);
+                return false;
+            }
+            
+            // 这里应该从订单数据中获取实际金额进行比对
+            // 暂时简单校验金额大于0
+            return amount > 0;
+        } catch (Exception e) {
+            log.error("Failed to validate order amount: orderId={}", orderId, e);
+            return false;
+        }
     }
     
     /**
@@ -201,12 +216,22 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = paymentMapper.selectOne(queryWrapper);
         
         if (payment != null) {
-            payment.setStatus(status);
-            payment.setPaidTime(LocalDateTime.now());
+            payment.setStatus("paid".equals(status) ? "paid" : status);
+            if ("paid".equals(status)) {
+                payment.setPaidTime(LocalDateTime.now());
+            }
             payment.setUpdateTime(LocalDateTime.now());
             paymentMapper.updateById(payment);
             
-            // TODO: 发送消息到订单服务，更新订单状态
+            // 调用订单服务更新订单支付状态
+            if ("paid".equals(status)) {
+                try {
+                    orderServiceClient.updateOrderPaymentStatus(orderId, payment.getPaymentNo());
+                    log.info("Order payment status updated: orderId={}, paymentNo={}", orderId, payment.getPaymentNo());
+                } catch (Exception e) {
+                    log.error("Failed to update order payment status: orderId={}", orderId, e);
+                }
+            }
         }
     }
     
