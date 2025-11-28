@@ -282,6 +282,68 @@ CREATE TABLE `user_device` (
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户设备管理表';
 
+-- 售后申请表
+CREATE TABLE `after_sale_apply` (
+  `id` varchar(36) NOT NULL COMMENT '售后申请ID',
+  `order_id` varchar(36) NOT NULL COMMENT '订单ID',
+  `order_item_id` varchar(36) NOT NULL COMMENT '订单项ID',
+  `user_id` varchar(36) NOT NULL COMMENT '用户ID',
+  `seller_id` varchar(36) NOT NULL COMMENT '商家ID',
+  `type` varchar(20) NOT NULL COMMENT '售后类型（refund-仅退款，return_refund-退货退款，exchange-换货）',
+  `reason` varchar(200) NOT NULL COMMENT '售后原因',
+  `description` longtext COMMENT '详细描述',
+  `amount` bigint NOT NULL COMMENT '申请金额（单位：分）',
+  `images` longtext COMMENT '凭证图片（JSON数组）',
+  `status` varchar(20) DEFAULT 'pending' COMMENT '售后状态（pending-待审核，approved-已同意，rejected-已拒绝，processing-处理中，completed-已完成，cancelled-已取消）',
+  `refund_amount` bigint DEFAULT 0 COMMENT '实际退款金额（单位：分）',
+  `express_company` varchar(100) COMMENT '快递公司',
+  `express_no` varchar(100) COMMENT '快递单号',
+  `seller_remark` longtext COMMENT '商家备注',
+  `admin_remark` longtext COMMENT '平台备注',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除（0-未删除，1-已删除）',
+  PRIMARY KEY (`id`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_seller_id` (`seller_id`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='售后申请表';
+
+-- 售后日志表
+CREATE TABLE `after_sale_log` (
+  `id` varchar(36) NOT NULL COMMENT '日志ID',
+  `after_sale_id` varchar(36) NOT NULL COMMENT '售后申请ID',
+  `operator_id` varchar(36) NOT NULL COMMENT '操作人ID',
+  `operator_type` varchar(20) NOT NULL COMMENT '操作人类型（user-用户，seller-商家，admin-平台）',
+  `action` varchar(50) NOT NULL COMMENT '操作类型',
+  `content` longtext COMMENT '操作内容',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_after_sale_id` (`after_sale_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='售后日志表';
+
+-- 意见反馈表
+CREATE TABLE `feedback` (
+  `id` varchar(36) NOT NULL COMMENT '反馈ID',
+  `user_id` varchar(36) NOT NULL COMMENT '用户ID',
+  `type` varchar(50) NOT NULL COMMENT '反馈类型（bug-功能异常，suggestion-功能建议，complaint-投诉建议，other-其他）',
+  `title` varchar(200) NOT NULL COMMENT '反馈标题',
+  `content` longtext NOT NULL COMMENT '反馈内容',
+  `images` longtext COMMENT '凭证图片（JSON数组）',
+  `contact_info` varchar(200) COMMENT '联系方式',
+  `status` varchar(20) DEFAULT 'pending' COMMENT '处理状态（pending-待处理，processing-处理中，completed-已完成）',
+  `reply_content` longtext COMMENT '回复内容',
+  `reply_time` datetime COMMENT '回复时间',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除（0-未删除，1-已删除）',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='意见反馈表';
+
 -- 创建索引以提高查询性能
 CREATE INDEX idx_product_seller ON product(seller_id);
 CREATE INDEX idx_product_category ON product(category_id);
@@ -289,3 +351,9 @@ CREATE INDEX idx_product_status ON product(status);
 CREATE INDEX idx_order_user ON orders(user_id);
 CREATE INDEX idx_order_status ON orders(status);
 CREATE INDEX idx_payment_order ON payment(order_id);
+CREATE INDEX idx_after_sale_order ON after_sale_apply(order_id);
+CREATE INDEX idx_after_sale_user ON after_sale_apply(user_id);
+CREATE INDEX idx_after_sale_seller ON after_sale_apply(seller_id);
+CREATE INDEX idx_after_sale_status ON after_sale_apply(status);
+CREATE INDEX idx_feedback_user ON feedback(user_id);
+CREATE INDEX idx_feedback_status ON feedback(status);
