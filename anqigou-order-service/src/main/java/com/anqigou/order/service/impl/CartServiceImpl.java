@@ -94,14 +94,15 @@ public class CartServiceImpl implements CartService {
                     // 调用product-service获取商品详细信息
                     try {
                         log.debug("Calling product service for productId: {}, userId: {}", item.getProductId(), userId);
-                        ApiResponse<ProductDetailDTO> response = productServiceClient.getProductDetail(item.getProductId(), userId);
+                        // 注意：这里不需要传递X-User-Id头，因为商品服务的userId参数是可选的
+                        ApiResponse<ProductDetailDTO> response = productServiceClient.getProductDetail(item.getProductId(), null);
                         log.info("Product service response for productId {}: code={}, message={}, data=null?{}", 
                                 item.getProductId(), 
                                 response != null ? response.getCode() : "null", 
                                 response != null ? response.getMessage() : "null",
                                 response != null && response.getData() != null ? "false" : "true");
                         
-                        if (response != null && response.getCode() == 200 && response.getData() != null) {
+                        if (response != null && response.getCode() == 0 && response.getData() != null) {
                             ProductDetailDTO productDetail = response.getData();
                             log.debug("Product details - name: {}, mainImage: {}, price: {}", 
                                     productDetail.getName(), productDetail.getMainImage(), productDetail.getPrice());

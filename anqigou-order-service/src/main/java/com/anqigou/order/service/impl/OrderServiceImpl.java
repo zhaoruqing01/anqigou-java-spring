@@ -19,6 +19,7 @@ import com.anqigou.order.dto.AddressInfoDTO;
 import com.anqigou.order.dto.CreateOrderRequest;
 import com.anqigou.order.dto.OrderDetailDTO;
 import com.anqigou.order.dto.OrderItemDTO;
+import com.anqigou.order.dto.ProductDetailDTO;
 import com.anqigou.order.dto.SkuStockDTO;
 import com.anqigou.order.entity.Order;
 import com.anqigou.order.entity.OrderItem;
@@ -242,17 +243,32 @@ public class OrderServiceImpl implements OrderService {
         
         // 转换为DTO
         List<OrderItemDTO> itemDTOs = items.stream()
-                .map(item -> OrderItemDTO.builder()
-                        .id(item.getId())
-                        .productId(item.getProductId())
-                        .productName(item.getProductName())
-                        .skuId(item.getSkuId())
-                        .specInfo(item.getSpecInfo())
-                        .unitPrice(item.getUnitPrice())
-                        .quantity(item.getQuantity())
-                        .subtotal(item.getSubtotal())
-                        .mainImage("") // TODO: 从商品表获取主图
-                        .build())
+                .map(item -> {
+                    OrderItemDTO.OrderItemDTOBuilder builder = OrderItemDTO.builder()
+                            .id(item.getId())
+                            .productId(item.getProductId())
+                            .productName(item.getProductName())
+                            .skuId(item.getSkuId())
+                            .specInfo(item.getSpecInfo())
+                            .unitPrice(item.getUnitPrice())
+                            .quantity(item.getQuantity())
+                            .subtotal(item.getSubtotal());
+                    
+                    // 调用商品服务获取商品主图
+                    try {
+                        ApiResponse<ProductDetailDTO> response = productServiceClient.getProductDetail(item.getProductId(), null);
+                        if (response != null && response.getCode() == 0 && response.getData() != null) {
+                            builder.mainImage(response.getData().getMainImage() != null ? response.getData().getMainImage() : "");
+                        } else {
+                            builder.mainImage("");
+                        }
+                    } catch (Exception e) {
+                        log.error("获取商品主图失败: productId={}", item.getProductId(), e);
+                        builder.mainImage("");
+                    }
+                    
+                    return builder.build();
+                })
                 .collect(Collectors.toList());
         
         OrderDetailDTO dto = OrderDetailDTO.builder()
@@ -305,15 +321,30 @@ public class OrderServiceImpl implements OrderService {
                     List<OrderItem> items = orderItemMapper.selectList(itemWrapper);
                     
                     List<OrderItemDTO> itemDTOs = items.stream()
-                            .map(item -> OrderItemDTO.builder()
-                                    .id(item.getId())
-                                    .productId(item.getProductId())
-                                    .productName(item.getProductName())
-                                    .unitPrice(item.getUnitPrice())
-                                    .quantity(item.getQuantity())
-                                    .mainImage("") // TODO: 从商品表获取
-                                    .specInfo(item.getSpecInfo())
-                                    .build())
+                            .map(item -> {
+                                OrderItemDTO.OrderItemDTOBuilder builder = OrderItemDTO.builder()
+                                        .id(item.getId())
+                                        .productId(item.getProductId())
+                                        .productName(item.getProductName())
+                                        .unitPrice(item.getUnitPrice())
+                                        .quantity(item.getQuantity())
+                                        .specInfo(item.getSpecInfo());
+                                
+                                // 调用商品服务获取商品主图
+                                try {
+                                    ApiResponse<ProductDetailDTO> response = productServiceClient.getProductDetail(item.getProductId(), null);
+                                    if (response != null && response.getCode() == 0 && response.getData() != null) {
+                                        builder.mainImage(response.getData().getMainImage() != null ? response.getData().getMainImage() : "");
+                                    } else {
+                                        builder.mainImage("");
+                                    }
+                                } catch (Exception e) {
+                                    log.error("获取商品主图失败: productId={}", item.getProductId(), e);
+                                    builder.mainImage("");
+                                }
+                                
+                                return builder.build();
+                            })
                             .collect(Collectors.toList());
                     
                     return OrderDetailDTO.builder()
