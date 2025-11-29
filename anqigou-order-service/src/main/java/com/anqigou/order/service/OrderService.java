@@ -24,7 +24,7 @@ public interface OrderService {
     /**
      * 获取订单列表
      */
-    Page<Object> getOrderList(String userId, int pageNum, int pageSize);
+    Page<Object> getOrderList(String userId, int pageNum, int pageSize, String status);
     
     /**
      * 取消订单

@@ -34,10 +34,20 @@ public class OrderController {
      * 创建订单
      */
     @PostMapping("/create")
-    public ApiResponse<String> createOrder(@RequestAttribute String userId,
+    public ApiResponse<String> createOrder(@RequestAttribute(required = false) String userId,
                                           @RequestBody CreateOrderRequest request) {
-        String orderId = orderService.createOrder(userId, request);
-        return ApiResponse.success("订单创建成功", orderId);
+        try {
+            if (userId == null) {
+                // 如果拦截器未生效，尝试从Header获取作为临时修复
+                log.warn("UserId attribute missing, interceptor might not be working");
+                return ApiResponse.failure(401, "User ID missing");
+            }
+            String orderId = orderService.createOrder(userId, request);
+            return ApiResponse.success("订单创建成功", orderId);
+        } catch (Exception e) {
+            log.error("Create order failed", e);
+            return ApiResponse.failure(500, "Create order failed: " + e.getMessage());
+        }
     }
     
     /**
@@ -45,20 +55,37 @@ public class OrderController {
      */
     @GetMapping("/{orderId}")
     public ApiResponse<Object> getOrderDetail(@PathVariable String orderId,
-                                             @RequestAttribute String userId) {
-        Object orderDetail = orderService.getOrderDetail(orderId, userId);
-        return ApiResponse.success(orderDetail);
+                                             @RequestAttribute(required = false) String userId) {
+        try {
+            if (userId == null) {
+                return ApiResponse.failure(401, "User ID missing");
+            }
+            Object orderDetail = orderService.getOrderDetail(orderId, userId);
+            return ApiResponse.success(orderDetail);
+        } catch (Exception e) {
+            log.error("Get order detail failed", e);
+            return ApiResponse.failure(500, "Get order detail failed: " + e.getMessage());
+        }
     }
     
     /**
      * 获取订单列表
      */
     @GetMapping("/list")
-    public ApiResponse<Page<Object>> getOrderList(@RequestAttribute String userId,
+    public ApiResponse<Page<Object>> getOrderList(@RequestAttribute(required = false) String userId,
                                                   @RequestParam(defaultValue = "1") int pageNum,
-                                                  @RequestParam(defaultValue = "10") int pageSize) {
-        Page<Object> orders = orderService.getOrderList(userId, pageNum, pageSize);
-        return ApiResponse.success(orders);
+                                                  @RequestParam(defaultValue = "10") int pageSize,
+                                                  @RequestParam(required = false) String status) {
+        try {
+            if (userId == null) {
+                return ApiResponse.failure(401, "User ID missing");
+            }
+            Page<Object> orders = orderService.getOrderList(userId, pageNum, pageSize, status);
+            return ApiResponse.success(orders);
+        } catch (Exception e) {
+            log.error("Get order list failed", e);
+            return ApiResponse.failure(500, "Get order list failed: " + e.getMessage());
+        }
     }
     
     /**
@@ -66,9 +93,17 @@ public class OrderController {
      */
     @PostMapping("/{orderId}/cancel")
     public ApiResponse<String> cancelOrder(@PathVariable String orderId,
-                                        @RequestAttribute String userId) {
-        orderService.cancelOrder(orderId, userId);
-        return ApiResponse.success("订单取消成功");
+                                        @RequestAttribute(required = false) String userId) {
+        try {
+            if (userId == null) {
+                return ApiResponse.failure(401, "User ID missing");
+            }
+            orderService.cancelOrder(orderId, userId);
+            return ApiResponse.success("订单取消成功");
+        } catch (Exception e) {
+            log.error("Cancel order failed", e);
+            return ApiResponse.failure(500, "Cancel order failed: " + e.getMessage());
+        }
     }
     
     /**
@@ -76,9 +111,17 @@ public class OrderController {
      */
     @PostMapping("/{orderId}/confirm-receipt")
     public ApiResponse<String> confirmReceipt(@PathVariable String orderId,
-                                           @RequestAttribute String userId) {
-        orderService.confirmReceipt(orderId, userId);
-        return ApiResponse.success("订单已签收");
+                                           @RequestAttribute(required = false) String userId) {
+        try {
+            if (userId == null) {
+                return ApiResponse.failure(401, "User ID missing");
+            }
+            orderService.confirmReceipt(orderId, userId);
+            return ApiResponse.success("订单已签收");
+        } catch (Exception e) {
+            log.error("Confirm receipt failed", e);
+            return ApiResponse.failure(500, "Confirm receipt failed: " + e.getMessage());
+        }
     }
     
     /**
@@ -87,8 +130,13 @@ public class OrderController {
     @GetMapping("/{orderId}/pay/{paymentNo}")
     public ApiResponse<Void> updateOrderPaymentStatus(@PathVariable String orderId,
                                                       @PathVariable String paymentNo) {
-        orderService.updatePaymentStatus(orderId, paymentNo);
-        return ApiResponse.success();
+        try {
+            orderService.updatePaymentStatus(orderId, paymentNo);
+            return ApiResponse.success();
+        } catch (Exception e) {
+            log.error("Update payment status failed", e);
+            return ApiResponse.failure(500, "Update payment status failed: " + e.getMessage());
+        }
     }
     
     /**
@@ -98,7 +146,12 @@ public class OrderController {
     public ApiResponse<String> shipOrder(@PathVariable String orderId,
                                         @RequestParam String courierCompany,
                                         @RequestParam String trackingNo) {
-        orderService.shipOrder(orderId, courierCompany, trackingNo);
-        return ApiResponse.success("订单已发货");
+        try {
+            orderService.shipOrder(orderId, courierCompany, trackingNo);
+            return ApiResponse.success("订单已发货");
+        } catch (Exception e) {
+            log.error("Ship order failed", e);
+            return ApiResponse.failure(500, "Ship order failed: " + e.getMessage());
+        }
     }
 }

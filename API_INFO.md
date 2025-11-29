@@ -743,16 +743,25 @@
   ```json
   {
     "addressId": "addr123",
-    "cartItems": [
+    "items": [
       {
         "skuId": "sku1",
         "quantity": 1
       }
     ],
-    "paymentMethod": "微信支付",
+    "paymentMethod": 1,
+    "shippingMethod": "normal",
     "remark": "测试订单备注"
   }
   ```
+  **参数说明**:
+  - `addressId`: 收货地址 ID（必填）
+  - `items`: 订单商品列表（必填）
+    - `skuId`: 商品 SKU ID（必填）
+    - `quantity`: 购买数量（必填）
+  - `paymentMethod`: 支付方式（必填，1-微信支付，2-支付宝）
+  - `shippingMethod`: 配送方式（选填，normal-标准配送，express-次日达，pickup-到店自提，默认 normal）
+  - `remark`: 订单备注（选填）
 - **响应结果**:
   ```json
   {

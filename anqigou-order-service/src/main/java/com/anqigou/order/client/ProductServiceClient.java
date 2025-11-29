@@ -15,7 +15,7 @@ import com.anqigou.order.dto.SkuStockDTO;
 /**
  * 商品服务Feign客户端
  */
-@FeignClient(name = "anqigou-product-service", path = "/api/product")
+@FeignClient(name = "anqigou-product-service", path = "/api/product", url = "http://localhost:8082")
 public interface ProductServiceClient {
     
     /**

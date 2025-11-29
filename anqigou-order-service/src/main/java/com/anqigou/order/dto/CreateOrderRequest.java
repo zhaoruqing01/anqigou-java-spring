@@ -7,8 +7,15 @@ import lombok.Data;
 @Data
 public class CreateOrderRequest {
     private String addressId;
-    private Integer paymentMethod;
+    private String paymentMethod;
     private String shippingMethod;
     private String remark;
-    private List<OrderItemDTO> items;
+    private List<OrderItemRequest> items;
+    
+    @Data
+    public static class OrderItemRequest {
+        private String productId;
+        private String skuId;
+        private Integer quantity;
+    }
 }

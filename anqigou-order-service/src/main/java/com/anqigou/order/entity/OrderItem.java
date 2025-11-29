@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@TableName("order_items")
+@TableName("order_item")
 public class OrderItem {
     
     /**
@@ -68,11 +68,6 @@ public class OrderItem {
     private Long subtotal;
     
     /**
-     * 商品主图
-     */
-    private String mainImage;
-    
-    /**
      * 创建时间
      */
     private LocalDateTime createTime;
@@ -81,9 +76,4 @@ public class OrderItem {
      * 更新时间
      */
     private LocalDateTime updateTime;
-    
-    /**
-     * 删除标志
-     */
-    private Integer deleted;
 }
