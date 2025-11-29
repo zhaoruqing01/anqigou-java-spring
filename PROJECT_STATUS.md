@@ -566,5 +566,49 @@ public ApiResponse<String> createOrder(
 
 ---
 
+## 🔧 最新修复记录 (2025-11-29)
+
+### 已修复问题
+
+1. **订单服务端口配置错误** ✅
+   - 问题: 订单服务配置端口为 8082,实际应为 8083
+   - 解决: 修改 application.yml 端口配置为 8083
+2. **RabbitMQ 连接失败导致启动报错** ✅
+
+   - 问题: 订单服务启动时尝试连接 RabbitMQ 失败
+   - 解决: 在 application.yml 中禁用 RabbitMQ 自动配置
+
+3. **反馈详情页面空白** ✅
+
+   - 问题: feedback-detail.vue 使用 onLoad 获取路由参数失败
+   - 解决: 改用 onMounted + getCurrentPages 获取路由参数
+
+4. **商品接口端口映射错误** ✅
+
+   - 问题: request.ts 中订单服务映射到 8082,商品服务映射到 8083(实际应相反)
+   - 解决: 修正端口映射,订单服务->8083,商品服务->8082,并添加/cart 和/favorite 路径映射
+
+5. **收藏接口 403 错误** ✅
+
+   - 问题: FavoriteController 使用@RequestHeader 获取 userId,与其他 Controller 不一致
+   - 解决: 改用@RequestAttribute("userId")并添加/api/user 前缀,与其他接口保持一致
+
+6. **收藏 API 路径错误** ✅
+   - 问题: 前端调用/favorite/_ ,后端实际路径为/api/user/favorite/_
+   - 解决: 更新 favorite.ts 中所有 API 路径添加/user 前缀
+
+### 待完成功能
+
+1. **分类页面改造为搜索页面** ⚠️
+
+   - 需要: 新建搜索页面,修改 pages.json,更新 tabBar 配置
+   - 需要: 新建独立的分类页面作为 tabBar 页面
+
+2. **订单地址选择问题** ⚠️
+   - 需要: 检查订单确认页面地址选择逻辑
+3. **新增地址页面省市区三级联动** ⚠️
+   - 需要: 实现省市区 picker 组件三级联动
+   - 需要: 准备省市区数据源
+
 **文档维护**: 本文档会随项目进展持续更新
-**最后更新**: 2025-11-28 22:20
+**最后更新**: 2025-11-29 09:38

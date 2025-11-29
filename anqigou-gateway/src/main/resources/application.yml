@@ -22,7 +22,7 @@ spring:
         - id: user-service
           uri: lb://anqigou-user-service
           predicates:
-            - Path=/api/auth/**,/api/user/**
+            - Path=/api/auth/**,/api/user/**,/api/feedback/**
           filters:
             - StripPrefix=1
 
@@ -30,7 +30,7 @@ spring:
         - id: product-service
           uri: lb://anqigou-product-service
           predicates:
-            - Path=/api/products/**
+            - Path=/api/product/**
           filters:
             - StripPrefix=1
 
@@ -38,7 +38,7 @@ spring:
         - id: order-service
           uri: lb://anqigou-order-service
           predicates:
-            - Path=/api/orders/**,/api/cart/**
+            - Path=/api/order/**,/api/cart/**
           filters:
             - StripPrefix=1
 
