@@ -10,7 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.anqigou.common.exception.BizException;
+import com.anqigou.common.response.ApiResponse;
+import com.anqigou.order.client.ProductServiceClient;
 import com.anqigou.order.dto.CartItemDTO;
+import com.anqigou.order.dto.ProductDetailDTO;
+import com.anqigou.order.dto.ProductSkuDTO;
 import com.anqigou.order.entity.CartItem;
 import com.anqigou.order.mapper.CartMapper;
 import com.anqigou.order.service.CartService;
@@ -24,6 +28,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private CartMapper cartMapper;
+    
+    @Autowired
+    private ProductServiceClient productServiceClient;
 
     @Override
     public void addItemToCart(String userId, CartItemDTO cartItemDTO) {
@@ -76,7 +83,7 @@ public class CartServiceImpl implements CartService {
             return Collections.emptyList();
         }
         
-        // 将实体转换为 DTO 列表
+        // 将实体转换为 DTO 列表，并填充商品详细信息
         List<CartItemDTO> dtoList = cartItems.stream()
                 .map(item -> {
                     CartItemDTO dto = new CartItemDTO();
@@ -84,9 +91,68 @@ public class CartServiceImpl implements CartService {
                     dto.setProductId(item.getProductId());
                     dto.setQuantity(item.getQuantity());
                     
-                    // TODO: 调用product-service获取商品详细信息
-                    // 包括：productName, mainImage, specInfo, price, stock
-                    // 暂时返回基础信息
+                    // 调用product-service获取商品详细信息
+                    try {
+                        log.debug("Calling product service for productId: {}, userId: {}", item.getProductId(), userId);
+                        ApiResponse<ProductDetailDTO> response = productServiceClient.getProductDetail(item.getProductId(), userId);
+                        log.info("Product service response for productId {}: code={}, message={}, data=null?{}", 
+                                item.getProductId(), 
+                                response != null ? response.getCode() : "null", 
+                                response != null ? response.getMessage() : "null",
+                                response != null && response.getData() != null ? "false" : "true");
+                        
+                        if (response != null && response.getCode() == 200 && response.getData() != null) {
+                            ProductDetailDTO productDetail = response.getData();
+                            log.debug("Product details - name: {}, mainImage: {}, price: {}", 
+                                    productDetail.getName(), productDetail.getMainImage(), productDetail.getPrice());
+                                    
+                            dto.setProductName(productDetail.getName() != null ? productDetail.getName() : "未知商品");
+                            dto.setMainImage(productDetail.getMainImage() != null ? productDetail.getMainImage() : "");
+                            dto.setPrice(productDetail.getPrice() != null ? productDetail.getPrice() : 0L);
+                            
+                            // 查找对应的SKU信息
+                            if (productDetail.getSkus() != null) {
+                                boolean foundSku = false;
+                                for (ProductSkuDTO sku : productDetail.getSkus()) {
+                                    if (sku.getId().equals(item.getSkuId())) {
+                                        dto.setSpecInfo(sku.getSpecValue() != null ? sku.getSpecValue() : "");
+                                        dto.setStock(sku.getStock() != null ? sku.getStock() : 0);
+                                        log.debug("Found matching SKU - specInfo: {}, stock: {}", 
+                                                sku.getSpecValue(), sku.getStock());
+                                        foundSku = true;
+                                        break;
+                                    }
+                                }
+                                
+                                // 如果没找到匹配的SKU，设置默认值
+                                if (!foundSku) {
+                                    dto.setSpecInfo("");
+                                    dto.setStock(0);
+                                    log.debug("No matching SKU found for skuId: {}", item.getSkuId());
+                                }
+                            } else {
+                                dto.setSpecInfo("");
+                                dto.setStock(0);
+                                log.debug("No SKUs found in product detail");
+                            }
+                        } else {
+                            log.warn("Failed to get product details for productId {}: response={}", item.getProductId(), response);
+                            // 设置默认值
+                            dto.setProductName("未知商品");
+                            dto.setMainImage("");
+                            dto.setPrice(0L);
+                            dto.setSpecInfo("");
+                            dto.setStock(0);
+                        }
+                    } catch (Exception e) {
+                        log.error("获取商品详情失败: productId={}, skuId={}", item.getProductId(), item.getSkuId(), e);
+                        // 即使获取商品详情失败，也要设置默认值以保证前端正常显示
+                        dto.setProductName("未知商品");
+                        dto.setMainImage("");
+                        dto.setPrice(0L);
+                        dto.setSpecInfo("");
+                        dto.setStock(0);
+                    }
                     
                     return dto;
                 })

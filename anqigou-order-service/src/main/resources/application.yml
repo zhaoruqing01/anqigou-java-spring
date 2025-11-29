@@ -55,3 +55,17 @@ logging:
   level:
     root: info
     com.anqigou: debug
+    com.anqigou.order.client: debug
+
+# Feign配置
+feign:
+  client:
+    config:
+      anqigou-product-service:
+        connectTimeout: 5000
+        readTimeout: 5000
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
