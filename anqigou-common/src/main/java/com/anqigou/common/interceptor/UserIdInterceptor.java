@@ -32,9 +32,11 @@ public class UserIdInterceptor implements HandlerInterceptor {
         }
         
         // 设置为请求属性，供 @RequestAttribute 注入
-        if (userId != null && !userId.isEmpty()) {
-            request.setAttribute("userId", userId);
+        // 如果没有认证信息，提供默认值避免 @RequestAttribute 抛出异常
+        if (userId == null || userId.isEmpty()) {
+            userId = "anonymous";
         }
+        request.setAttribute("userId", userId);
         
         return true;
     }

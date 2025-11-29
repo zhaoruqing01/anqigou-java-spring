@@ -88,7 +88,7 @@ public class OrderController {
     public ApiResponse<Void> updateOrderPaymentStatus(@PathVariable String orderId,
                                                       @PathVariable String paymentNo) {
         orderService.updatePaymentStatus(orderId, paymentNo);
-        return ApiResponse.success("订单支付状态已更新");
+        return ApiResponse.success();
     }
     
     /**

@@ -16,12 +16,12 @@ public class GatewayRouteConfig {
         return builder.routes()
                 // 用户服务路由
                 .route("user-service", r -> r
-                        .path("/api/auth/**", "/api/user/**")
+                        .path("/api/auth/**", "/api/user/**", "/api/feedback/**", "/api/favorite/**")
                         .uri("lb://anqigou-user-service"))
                 
                 // 商品服务路由
                 .route("product-service", r -> r
-                        .path("/api/products/**")
+                        .path("/api/products/**", "/api/product/**")
                         .uri("lb://anqigou-product-service"))
                 
                 // 订单服务路由

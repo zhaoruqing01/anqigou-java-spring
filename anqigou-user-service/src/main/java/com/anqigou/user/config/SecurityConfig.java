@@ -1,5 +1,7 @@
 package com.anqigou.user.config;
 
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,8 +14,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
 
 /**
  * Spring Security配置类
@@ -49,19 +49,22 @@ public class SecurityConfig {
                     new AntPathRequestMatcher("/api/auth/login-with-code"),
                     new AntPathRequestMatcher("/api/auth/wechat-login"),
                     new AntPathRequestMatcher("/api/user/address/**"),
+                    new AntPathRequestMatcher("/api/feedback/**"),
                     new AntPathRequestMatcher("/error")
                 ).permitAll()
                 // 健康检查端点
                 .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
-                // 其他所有请求都需要认证
-                .anyRequest().authenticated()
+                // 允许匿名访问所有请求
+                .anyRequest().permitAll()
             )
             // 禁用表单登录
             .formLogin().disable()
             // 禁用HTTP基本认证
             .httpBasic().disable()
             // 禁用默认的登录页面
-            .logout().disable();
+            .logout().disable()
+            // 启用匿名认证
+            .anonymous();
 
         return http.build();
     }
