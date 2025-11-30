@@ -22,6 +22,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // 注册 userId 拦截器
         registry.addInterceptor(userIdInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/auth/login", "/auth/register", "/auth/send-code", "/auth/login-with-code", "/product/**");
+                .excludePathPatterns(
+                    "/api/auth/login",
+                    "/api/auth/register",
+                    "/api/auth/send-code",
+                    "/api/auth/login-with-code",
+                    "/api/auth/wechat-login",
+                    "/error",
+                    "/actuator/**"
+                );
     }
 }
