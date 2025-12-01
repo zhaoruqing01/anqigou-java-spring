@@ -122,7 +122,14 @@ public class ProductServiceImpl implements ProductService {
         }
         
         if (keyword != null && !keyword.isEmpty()) {
-            queryWrapper.like("name", keyword);
+            // 模糊搜索：商品名称、品牌、描述
+            queryWrapper.and(wrapper -> wrapper
+                    .like("name", keyword)
+                    .or()
+                    .like("brand", keyword)
+                    .or()
+                    .like("description", keyword)
+            );
         }
         
         // 排序处理

@@ -1,10 +1,16 @@
 package com.anqigou.user.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.anqigou.common.response.ApiResponse;
+import com.anqigou.user.client.ProductServiceClient;
+import com.anqigou.user.dto.FavoriteItemDTO;
+import com.anqigou.user.dto.ProductDetailDTO;
+import com.anqigou.user.dto.ProductSkuDTO;
 import com.anqigou.user.entity.UserFavorite;
 import com.anqigou.user.mapper.UserFavoriteMapper;
 import com.anqigou.user.service.UserFavoriteService;
@@ -19,6 +25,9 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
 
     @Autowired
     private UserFavoriteMapper userFavoriteMapper;
+    
+    @Autowired
+    private ProductServiceClient productServiceClient;
 
     @Override
     public boolean addFavorite(String userId, String productId) {
@@ -50,13 +59,53 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
     }
 
     @Override
-    public List<UserFavorite> listFavorites(String userId, int pageNum, int pageSize) {
+    public List<FavoriteItemDTO> listFavorites(String userId, int pageNum, int pageSize) {
+        // 先获取收藏记录
         LambdaQueryWrapper<UserFavorite> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserFavorite::getUserId, userId)
                 .orderByDesc(UserFavorite::getCreateTime);
         // 分页查询
         int offset = (pageNum - 1) * pageSize;
-        return userFavoriteMapper.selectList(wrapper.last("LIMIT " + offset + "," + pageSize));
+        List<UserFavorite> favorites = userFavoriteMapper.selectList(wrapper.last("LIMIT " + offset + "," + pageSize));
+        
+        // 转换为FavoriteItemDTO并填充商品信息
+        List<FavoriteItemDTO> result = new ArrayList<>();
+        for (UserFavorite favorite : favorites) {
+            FavoriteItemDTO item = new FavoriteItemDTO();
+            item.setId(favorite.getId());
+            item.setUserId(favorite.getUserId());
+            item.setProductId(favorite.getProductId());
+            item.setCreateTime(favorite.getCreateTime());
+            
+            // 通过Feign客户端获取商品详情
+            ApiResponse<ProductDetailDTO> productResponse = productServiceClient.getProductDetail(favorite.getProductId(), userId);
+            if (productResponse.getCode() == 0 && productResponse.getData() != null) {
+                ProductDetailDTO product = productResponse.getData();
+                item.setProductName(product.getName());
+                item.setMainImage(product.getMainImage());
+                item.setPrice(product.getPrice());
+                item.setOriginalPrice(product.getOriginalPrice());
+                
+                // 计算总库存（所有SKU库存之和）
+                int totalStock = 0;
+                if (product.getSkus() != null && !product.getSkus().isEmpty()) {
+                    for (ProductSkuDTO sku : product.getSkus()) {
+                        if (sku.getStock() != null) {
+                            totalStock += sku.getStock();
+                        }
+                    }
+                }
+                item.setStock(totalStock);
+                
+                item.setSoldCount(product.getSoldCount());
+                item.setRating(product.getRating());
+                item.setRatingCount(product.getRatingCount());
+            }
+            
+            result.add(item);
+        }
+        
+        return result;
     }
 
     @Override

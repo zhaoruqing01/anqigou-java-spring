@@ -2,6 +2,7 @@ package com.anqigou.user.service;
 
 import java.util.List;
 
+import com.anqigou.user.dto.FavoriteItemDTO;
 import com.anqigou.user.entity.UserFavorite;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -45,7 +46,7 @@ public interface UserFavoriteService extends IService<UserFavorite> {
      * @param pageSize 每页数量
      * @return 收藏列表
      */
-    List<UserFavorite> listFavorites(String userId, int pageNum, int pageSize);
+    List<FavoriteItemDTO> listFavorites(String userId, int pageNum, int pageSize);
 
     /**
      * 检查商品是否已收藏
