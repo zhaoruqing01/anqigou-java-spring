@@ -81,10 +81,10 @@ alipay:
 # Feign 客户端配置
 feign:
   client:
-    order:
-      url: http://localhost:8082
-    logistics:
-      url: http://localhost:8085
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
 
 server:
   port: 8084

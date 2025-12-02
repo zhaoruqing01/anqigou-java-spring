@@ -46,8 +46,8 @@ public class ErrorHandlingFilter implements GlobalFilter, Ordered {
                     // 构造错误响应体
                     Map<String, Object> responseBody = new HashMap<>();
                     responseBody.put("code", 500);
-                    responseBody.put("message", "服务暂时不可用，请稍后重试");
-                    responseBody.put("path", exchange.getRequest().getPath());
+                    responseBody.put("message", "服务暂时不可用,请稍后重试");
+                    responseBody.put("path", exchange.getRequest().getPath().value());
                     responseBody.put("timestamp", System.currentTimeMillis());
                     responseBody.put("error", ex.getMessage());
                     

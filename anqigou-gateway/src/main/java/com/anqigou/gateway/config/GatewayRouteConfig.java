@@ -1,9 +1,11 @@
 package com.anqigou.gateway.config;
 
+import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Mono;
 
 /**
  * 网关路由配置
@@ -50,5 +52,16 @@ public class GatewayRouteConfig {
                         .uri("lb://anqigou-admin-service"))
                 
                 .build();
+    }
+    
+    /**
+     * IP地址限流键解析器
+     * @return KeyResolver
+     */
+    @Bean
+    public KeyResolver ipKeyResolver() {
+        return exchange -> Mono.just(
+            exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
+        );
     }
 }

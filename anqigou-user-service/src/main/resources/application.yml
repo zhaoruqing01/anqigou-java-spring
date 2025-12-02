@@ -2,20 +2,17 @@ spring:
   application:
     name: anqigou-user-service
 
-# 暂时注释掉Nacos配置，让服务可以独立运行
-#  cloud:
-#    nacos:
-#      discovery:
-#        server-addr: localhost:8848
-#        namespace: public
-#        group: DEFAULT_GROUP
-#      config:
-#        server-addr: localhost:8848
-#        file-extension: yml
-#        namespace: public
-#        group: DEFAULT_GROUP
-#        import-check:
-#          enabled: false
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: public
+      config:
+        server-addr: localhost:8848
+        file-extension: yml
+        namespace: public
+        import-check:
+          enabled: false
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
