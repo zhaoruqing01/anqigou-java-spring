@@ -20,7 +20,7 @@ import com.anqigou.user.service.UserFavoriteService;
  * 用户收藏控制器
  */
 @RestController
-@RequestMapping("/api/user/favorite")
+@RequestMapping("/user/favorite")
 public class FavoriteController {
 
     @Autowired

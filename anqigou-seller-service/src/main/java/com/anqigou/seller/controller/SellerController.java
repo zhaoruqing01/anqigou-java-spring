@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  * 商家控制器
  */
 @RestController
-@RequestMapping("/api/seller")
+@RequestMapping("/seller")
 @Validated
 @Slf4j
 public class SellerController {

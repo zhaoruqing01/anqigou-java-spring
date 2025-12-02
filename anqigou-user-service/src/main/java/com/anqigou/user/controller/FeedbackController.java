@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * 意见反馈控制器
  */
 @RestController
-@RequestMapping("/api/feedback")
+@RequestMapping("/feedback")
 @Validated
 @Slf4j
 public class FeedbackController {

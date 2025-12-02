@@ -6,6 +6,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+
 /**
  * 网关CORS跨域配置
  * 解决前端跨域访问后端API的问题
@@ -15,29 +17,32 @@ public class CorsConfig {
     
     @Bean
     public CorsWebFilter corsWebFilter() {
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        // 创建CORS配置
+        CorsConfiguration config = new CorsConfiguration();
         
-        // 允许所有源访问（使用 OriginPattern 而不是 Origin，以支持 credentials）
-        // 生产环境建议指定具体的前端域名，如：
-        // corsConfiguration.addAllowedOrigin("http://localhost:8080");
-        // corsConfiguration.addAllowedOrigin("https://your-domain.com");
-        corsConfiguration.addAllowedOriginPattern("*");
+        // 允许的源 - 只允许特定源，不使用通配符，避免重复设置
+        config.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "http://localhost:5174"
+        ));
         
-        // 允许所有请求头
-        corsConfiguration.addAllowedHeader("*");
+        // 允许的请求头
+        config.setAllowedHeaders(Arrays.asList("*"));
         
-        // 允许所有HTTP方法
-        corsConfiguration.addAllowedMethod("*");
+        // 允许的HTTP方法
+        config.setAllowedMethods(Arrays.asList("*"));
         
-        // 允许携带credentials（Cookie、Authorization等）
-        corsConfiguration.setAllowCredentials(true);
+        // 允许携带credentials
+        config.setAllowCredentials(true);
         
         // 预检请求的缓存时间（秒）
-        corsConfiguration.setMaxAge(3600L);
+        config.setMaxAge(3600L);
         
+        // 配置源匹配模式
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfiguration);
+        source.registerCorsConfiguration("/**", config);
         
+        // 创建并返回CorsWebFilter
         return new CorsWebFilter(source);
     }
 }

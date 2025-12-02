@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  * 商品控制器
  */
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/product")
 @Validated
 @Slf4j
 public class ProductController {

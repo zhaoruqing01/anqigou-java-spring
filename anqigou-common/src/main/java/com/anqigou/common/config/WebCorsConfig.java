@@ -1,18 +1,18 @@
 package com.anqigou.common.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-
 /**
  * 微服务CORS跨域配置
  * 解决前端跨域访问后端API的问题
+ * 
+ * 注意：由于网关已配置CORS，此配置已完全禁用
+ * 避免CORS头重复导致的浏览器错误
  */
-@Configuration
+// @Configuration - 完全禁用此类，避免被扫描到
 public class WebCorsConfig {
     
+    // 注意：由于网关已配置CORS，此Bean已完全禁用
+    // 避免CORS头重复导致的浏览器错误
+    /*
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -39,4 +39,5 @@ public class WebCorsConfig {
         
         return new CorsFilter(source);
     }
+    */
 }

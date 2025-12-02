@@ -83,6 +83,24 @@ spring:
               burst-capacity: 20
             key-resolver: "#{@ipKeyResolver}"
 
+  # Spring Boot DevTools 配置
+  devtools:
+    restart:
+      enabled: true
+      # 排除不需要重启的目录
+      exclude: WEB-INF/**,static/**,public/**,templates/**
+    livereload:
+      enabled: true
+  # 禁用模板缓存
+  thymeleaf:
+    cache: false
+  # 禁用静态资源缓存
+  web:
+    resources:
+      static-locations: classpath:/static/
+      cache:
+        period: 0
+
 server:
   port: 8080
   servlet:
@@ -92,4 +110,7 @@ logging:
   level:
     root: info
     com.anqigou: debug
-    org.springframework.cloud.gateway: debug
+    org.springframework.cloud.gateway: trace
+    org.springframework.http.server.reactive: trace
+    org.springframework.web.reactive: trace
+    reactor.netty: trace

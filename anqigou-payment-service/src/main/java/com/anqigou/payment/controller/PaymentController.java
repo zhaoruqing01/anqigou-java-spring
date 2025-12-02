@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  * 支付控制器
  */
 @RestController
-@RequestMapping("/api/payment")
+@RequestMapping("/payment")
 @Slf4j
 public class PaymentController {
     

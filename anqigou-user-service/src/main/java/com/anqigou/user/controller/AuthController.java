@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * 用户认证控制器
  */
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @Validated
 @Slf4j
 public class AuthController {

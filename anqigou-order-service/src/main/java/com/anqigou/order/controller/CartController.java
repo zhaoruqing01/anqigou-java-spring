@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  * 购物车控制器
  */
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/cart")
 @Validated
 @Slf4j
 public class CartController {

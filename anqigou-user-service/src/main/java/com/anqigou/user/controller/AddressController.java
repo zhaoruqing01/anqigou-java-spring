@@ -23,7 +23,7 @@ import com.anqigou.user.service.AddressService;
  * 地址管理控制器
  */
 @RestController
-@RequestMapping("/api/user/address")
+@RequestMapping("/user/address")
 @Validated
 public class AddressController {
     

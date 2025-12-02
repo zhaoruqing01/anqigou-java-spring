@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
  * 管理员控制器
  */
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/admin")
 @Validated
 @Slf4j
 public class AdminController {

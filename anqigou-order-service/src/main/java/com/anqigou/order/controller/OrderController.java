@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  * 订单控制器
  */
 @RestController
-@RequestMapping("/api/order")
+@RequestMapping("/order")
 @Validated
 @Slf4j
 public class OrderController {

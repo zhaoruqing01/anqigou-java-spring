@@ -1,7 +1,5 @@
 package com.anqigou.user.config;
 
-import java.util.Arrays;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,9 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
  * Spring Security配置类
@@ -36,20 +31,17 @@ public class SecurityConfig {
             // 禁用session管理
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            // 配置CORS
-            .cors().configurationSource(corsConfigurationSource())
-            .and()
             // 配置请求授权规则
             .authorizeHttpRequests(authz -> authz
                 // 允许匿名访问的路径
                 .requestMatchers(
-                    new AntPathRequestMatcher("/api/auth/register"),
-                    new AntPathRequestMatcher("/api/auth/login"),
-                    new AntPathRequestMatcher("/api/auth/send-code"),
-                    new AntPathRequestMatcher("/api/auth/login-with-code"),
-                    new AntPathRequestMatcher("/api/auth/wechat-login"),
-                    new AntPathRequestMatcher("/api/user/address/**"),
-                    new AntPathRequestMatcher("/api/feedback/**"),
+                    new AntPathRequestMatcher("/auth/register"),
+                    new AntPathRequestMatcher("/auth/login"),
+                    new AntPathRequestMatcher("/auth/send-code"),
+                    new AntPathRequestMatcher("/auth/login-with-code"),
+                    new AntPathRequestMatcher("/auth/wechat-login"),
+                    new AntPathRequestMatcher("/user/address/**"),
+                    new AntPathRequestMatcher("/feedback/**"),
                     new AntPathRequestMatcher("/error")
                 ).permitAll()
                 // 健康检查端点
@@ -67,17 +59,5 @@ public class SecurityConfig {
             .anonymous();
 
         return http.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }
