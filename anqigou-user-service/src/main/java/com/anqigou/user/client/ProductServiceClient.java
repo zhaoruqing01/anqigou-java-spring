@@ -11,7 +11,7 @@ import com.anqigou.user.dto.ProductDetailDTO;
 /**
  * 商品服务Feign客户端
  */
-@FeignClient(name = "anqigou-product-service", path = "/api/product", url = "http://localhost:8082")
+@FeignClient(name = "anqigou-product-service", path = "/product")
 public interface ProductServiceClient {
     
     /**

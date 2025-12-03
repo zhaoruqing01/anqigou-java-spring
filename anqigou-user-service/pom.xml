@@ -56,6 +56,12 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
+        <!-- LoadBalancer for Feign clients -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
         <!-- Nacos 服务注册 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
