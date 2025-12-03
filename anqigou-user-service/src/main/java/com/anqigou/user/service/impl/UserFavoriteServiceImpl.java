@@ -77,29 +77,35 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
             item.setProductId(favorite.getProductId());
             item.setCreateTime(favorite.getCreateTime());
             
-            // 通过Feign客户端获取商品详情
-            ApiResponse<ProductDetailDTO> productResponse = productServiceClient.getProductDetail(favorite.getProductId(), userId);
-            if (productResponse.getCode() == 0 && productResponse.getData() != null) {
-                ProductDetailDTO product = productResponse.getData();
-                item.setProductName(product.getName());
-                item.setMainImage(product.getMainImage());
-                item.setPrice(product.getPrice());
-                item.setOriginalPrice(product.getOriginalPrice());
-                
-                // 计算总库存（所有SKU库存之和）
-                int totalStock = 0;
-                if (product.getSkus() != null && !product.getSkus().isEmpty()) {
-                    for (ProductSkuDTO sku : product.getSkus()) {
-                        if (sku.getStock() != null) {
-                            totalStock += sku.getStock();
+            try {
+                // 通过Feign客户端获取商品详情，添加异常处理
+                ApiResponse<ProductDetailDTO> productResponse = productServiceClient.getProductDetail(favorite.getProductId(), userId);
+                if (productResponse.getCode() == 0 && productResponse.getData() != null) {
+                    ProductDetailDTO product = productResponse.getData();
+                    item.setProductName(product.getName());
+                    item.setMainImage(product.getMainImage());
+                    item.setPrice(product.getPrice());
+                    item.setOriginalPrice(product.getOriginalPrice());
+                    
+                    // 计算总库存（所有SKU库存之和）
+                    int totalStock = 0;
+                    if (product.getSkus() != null && !product.getSkus().isEmpty()) {
+                        for (ProductSkuDTO sku : product.getSkus()) {
+                            if (sku.getStock() != null) {
+                                totalStock += sku.getStock();
+                            }
                         }
                     }
+                    item.setStock(totalStock);
+                    
+                    item.setSoldCount(product.getSoldCount());
+                    item.setRating(product.getRating());
+                    item.setRatingCount(product.getRatingCount());
                 }
-                item.setStock(totalStock);
-                
-                item.setSoldCount(product.getSoldCount());
-                item.setRating(product.getRating());
-                item.setRatingCount(product.getRatingCount());
+            } catch (Exception e) {
+                // 捕获Feign调用异常，防止整个请求失败
+                log.error("Failed to get product detail for favorite item: {}", favorite.getProductId(), e);
+                // 继续处理其他收藏项
             }
             
             result.add(item);
