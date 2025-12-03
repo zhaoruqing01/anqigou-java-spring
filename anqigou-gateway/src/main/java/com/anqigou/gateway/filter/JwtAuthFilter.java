@@ -29,22 +29,55 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     
     // 无需认证的路径
     private static final String[] ALLOW_PATHS = {
+            // 认证相关
             "/api/auth/login",
             "/api/auth/register",
             "/api/auth/send-code",
             "/api/auth/login-with-code",
             "/api/auth/wechat-login",
-            "/api/products",
-            "/api/products/**",
+            
+            // 商品相关（支持单数和复数形式）
             "/api/product",
             "/api/product/**",
+            "/api/products",
+            "/api/products/**",
+            
+            // 购物车相关
             "/api/cart",
             "/api/cart/**",
+            
+            // 订单相关
+            "/api/order",
+            "/api/order/**",
+            "/api/orders",
+            "/api/orders/**",
+            
+            // 支付相关
+            "/api/payment",
+            "/api/payment/**",
+            
+            // 物流相关
+            "/api/logistics",
+            "/api/logistics/**",
+            
+            // 商家相关
+            "/api/seller",
+            "/api/seller/**",
+            
+            // 管理员相关
+            "/api/admin",
+            "/api/admin/**",
+            
+            // 其他
             "/api/feedback",
             "/api/feedback/**",
+            "/api/user/favorite",
+            "/api/user/favorite/**",
             "/payment/notify",
             "/wechat/notify",
             "/alipay/notify",
+            "/error",
+            "/actuator/**"
     };
     
     @Override

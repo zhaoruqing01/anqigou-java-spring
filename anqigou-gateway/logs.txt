@@ -1,0 +1,241 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------< com.anqigou:anqigou-gateway >---------------------
+[INFO] Building anqigou-gateway 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:2.7.14:run (default-cli) > test-compile @ anqigou-gateway >>>
+[WARNING] 1 problem was encountered while building the effective model for org.javassist:javassist:jar:3.21.0-GA during dependency collection step for project (use -X to see details)
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ anqigou-gateway ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ anqigou-gateway ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ anqigou-gateway ---
+[INFO] skip non existing resourceDirectory d:\Project\anqigou-app\anqigou-java-spring\anqigou-gateway\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ anqigou-gateway ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:2.7.14:run (default-cli) < test-compile @ anqigou-gateway <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:2.7.14:run (default-cli) @ anqigou-gateway ---
+[INFO] Attaching agents: []
+18:47:03.980 [Thread-0] DEBUG org.springframework.boot.devtools.restart.classloader.RestartClassLoader - Created RestartClassLoader org.springframework.boot.devtools.restart.classloader.RestartClassLoader@587965a1
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::               (v2.7.14)
+
+2025-12-03 18:47:05.846  INFO 34720 --- [  restartedMain] com.anqigou.gateway.GatewayApplication   : Starting GatewayApplication using Java 11.0.7 on zhaoruqing with PID 34720 (D:\Project\anqigou-app\anqigou-java-spring\anqigou-gateway\target\classes started by 35291 in d:\Project\anqigou-app\anqigou-java-spring\anqigou-gateway)
+2025-12-03 18:47:05.847 DEBUG 34720 --- [  restartedMain] com.anqigou.gateway.GatewayApplication   : Running with Spring Boot v2.7.14, Spring v5.3.29
+2025-12-03 18:47:05.847  INFO 34720 --- [  restartedMain] com.anqigou.gateway.GatewayApplication   : No active profile set, falling back to 1 default profile: "default"
+2025-12-03 18:47:05.879  INFO 34720 --- [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-12-03 18:47:05.879  INFO 34720 --- [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-12-03 18:47:06.288 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayReactiveLoadBalancerClientAutoConfiguration#gatewayLoadBalancerClientFilter matched
+2025-12-03 18:47:06.290 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayReactiveLoadBalancerClientAutoConfiguration#loadBalancerServiceInstanceCookieFilter matched
+2025-12-03 18:47:06.313 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration$NettyConfiguration#routingFilter matched
+2025-12-03 18:47:06.313 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration$NettyConfiguration#nettyWriteResponseFilter matched
+2025-12-03 18:47:06.313 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration$NettyConfiguration#reactorNettyWebSocketClient matched
+2025-12-03 18:47:06.313 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration$NettyConfiguration#reactorNettyRequestUpgradeStrategy matched
+2025-12-03 18:47:06.335 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#adaptCachedBodyGlobalFilter matched
+2025-12-03 18:47:06.335 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#removeCachedBodyFilter matched
+2025-12-03 18:47:06.335 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#routeToRequestUrlFilter matched
+2025-12-03 18:47:06.335 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#forwardRoutingFilter matched
+2025-12-03 18:47:06.335 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#forwardPathFilter matched
+2025-12-03 18:47:06.337 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#webSocketService matched
+2025-12-03 18:47:06.337 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledGlobalFilter        : Condition OnEnabledGlobalFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#websocketRoutingFilter matched
+2025-12-03 18:47:06.337 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#weightCalculatorWebFilter matched
+2025-12-03 18:47:06.337 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#afterRoutePredicateFactory matched
+2025-12-03 18:47:06.337 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#beforeRoutePredicateFactory matched
+2025-12-03 18:47:06.338 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#betweenRoutePredicateFactory matched
+2025-12-03 18:47:06.338 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#cookieRoutePredicateFactory matched
+2025-12-03 18:47:06.338 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#headerRoutePredicateFactory matched
+2025-12-03 18:47:06.338 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#hostRoutePredicateFactory matched
+2025-12-03 18:47:06.339 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#methodRoutePredicateFactory matched
+2025-12-03 18:47:06.339 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#pathRoutePredicateFactory matched
+2025-12-03 18:47:06.339 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#queryRoutePredicateFactory matched
+2025-12-03 18:47:06.339 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#readBodyPredicateFactory matched
+2025-12-03 18:47:06.339 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#remoteAddrRoutePredicateFactory matched
+2025-12-03 18:47:06.340 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#xForwardedRemoteAddrRoutePredicateFactory matched
+2025-12-03 18:47:06.340 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#weightRoutePredicateFactory matched
+2025-12-03 18:47:06.340 TRACE 34720 --- [  restartedMain] o.s.c.g.c.c.OnEnabledPredicate           : Condition OnEnabledPredicate on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#cloudFoundryRouteServiceRoutePredicateFactory matched
+2025-12-03 18:47:06.341 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#addRequestHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.341 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#mapRequestHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.341 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#addRequestParameterGatewayFilterFactory matched
+2025-12-03 18:47:06.341 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#addResponseHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.341 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#modifyRequestBodyGatewayFilterFactory matched
+2025-12-03 18:47:06.342 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#dedupeResponseHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.342 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#modifyResponseBodyGatewayFilterFactory matched
+2025-12-03 18:47:06.342 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#cacheRequestBodyGatewayFilterFactory matched
+2025-12-03 18:47:06.342 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#prefixPathGatewayFilterFactory matched
+2025-12-03 18:47:06.342 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#preserveHostHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.342 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#redirectToGatewayFilterFactory matched
+2025-12-03 18:47:06.343 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#removeRequestHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.343 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#removeRequestParameterGatewayFilterFactory matched
+2025-12-03 18:47:06.343 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#removeResponseHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.347 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#requestRateLimiterGatewayFilterFactory matched
+2025-12-03 18:47:06.348 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#rewritePathGatewayFilterFactory matched
+2025-12-03 18:47:06.348 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#retryGatewayFilterFactory matched
+2025-12-03 18:47:06.348 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#setPathGatewayFilterFactory matched
+2025-12-03 18:47:06.348 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#secureHeadersGatewayFilterFactory matched
+2025-12-03 18:47:06.348 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#setRequestHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.348 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#setRequestHostHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.349 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#setResponseHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.349 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#rewriteResponseHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.349 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#rewriteLocationResponseHeaderGatewayFilterFactory matched
+2025-12-03 18:47:06.349 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#setStatusGatewayFilterFactory matched
+2025-12-03 18:47:06.349 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#saveSessionGatewayFilterFactory matched
+2025-12-03 18:47:06.349 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#stripPrefixGatewayFilterFactory matched
+2025-12-03 18:47:06.350 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#requestHeaderToRequestUriGatewayFilterFactory matched
+2025-12-03 18:47:06.350 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#requestSizeGatewayFilterFactory matched
+2025-12-03 18:47:06.350 TRACE 34720 --- [  restartedMain] o.s.c.g.c.conditional.OnEnabledFilter    : Condition OnEnabledFilter on org.springframework.cloud.gateway.config.GatewayAutoConfiguration#requestHeaderSizeGatewayFilterFactory matched
+2025-12-03 18:47:06.424  INFO 34720 --- [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2025-12-03 18:47:06.425  INFO 34720 --- [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-12-03 18:47:06.438  INFO 34720 --- [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 5 ms. Found 0 Redis repository interfaces.
+2025-12-03 18:47:06.599  INFO 34720 --- [  restartedMain] o.s.cloud.context.scope.GenericScope     : BeanFactory id=e98a32fc-ca04-3fa8-8f26-fd27a1839505
+2025-12-03 18:47:06.683  INFO 34720 --- [  restartedMain] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2025-12-03 18:47:06.683  INFO 34720 --- [  restartedMain] trationDelegate$BeanPostProcessorChecker : Bean 'org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig' of type [org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration$ReactorDeferringLoadBalancerFilterConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2025-12-03 18:47:06.684  INFO 34720 --- [  restartedMain] trationDelegate$BeanPostProcessorChecker : Bean 'reactorDeferringLoadBalancerExchangeFilterFunction' of type [org.springframework.cloud.client.loadbalancer.reactive.DeferringLoadBalancerExchangeFilterFunction] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2025-12-03 18:47:07.136  INFO 34720 --- [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2025-12-03 18:47:07.136  INFO 34720 --- [  restartedMain] o.a.catalina.core.AprLifecycleListener   : Loaded Apache Tomcat Native library [1.3.1] using APR version [1.7.4].
+2025-12-03 18:47:07.136  INFO 34720 --- [  restartedMain] o.a.catalina.core.AprLifecycleListener   : APR capabilities: IPv6 [true], sendfile [true], accept filters [false], random [true], UDS [true].
+2025-12-03 18:47:07.136  INFO 34720 --- [  restartedMain] o.a.catalina.core.AprLifecycleListener   : APR/OpenSSL configuration: useAprConnector [false], useOpenSSL [true]
+2025-12-03 18:47:07.140  INFO 34720 --- [  restartedMain] o.a.catalina.core.AprLifecycleListener   : OpenSSL successfully initialized [OpenSSL 3.0.14 4 Jun 2024]
+2025-12-03 18:47:07.148  INFO 34720 --- [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-03 18:47:07.148  INFO 34720 --- [  restartedMain] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.78]
+2025-12-03 18:47:07.763 DEBUG 34720 --- [  restartedMain] reactor.netty.tcp.TcpResources           : [http] resources will use the default LoopResources: DefaultLoopResources {prefix=reactor-http, daemon=true, selectCount=16, workerCount=16}
+2025-12-03 18:47:07.763 DEBUG 34720 --- [  restartedMain] reactor.netty.tcp.TcpResources           : [http] resources will use the default ConnectionProvider: reactor.netty.resources.DefaultPooledConnectionProvider@bd51a44
+2025-12-03 18:47:09.209  INFO 34720 --- [  restartedMain] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2025-12-03 18:47:10.607  INFO 34720 --- [  restartedMain] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2025-12-03 18:47:10.777 DEBUG 34720 --- [  restartedMain] o.s.c.gateway.config.GatewayProperties   : Routes supplied from Gateway Properties: [RouteDefinition{id='user-service', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/auth/**, _genkey_1=/api/user/**, _genkey_2=/api/feedback/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=lb://anqigou-user-service, order=0, metadata={}}, RouteDefinition{id='product-service', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/product/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=lb://anqigou-product-service, order=0, metadata={}}, RouteDefinition{id='order-service', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/order/**, _genkey_1=/api/cart/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=lb://anqigou-order-service, order=0, metadata={}}, RouteDefinition{id='payment-service', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/payment/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=lb://anqigou-payment-service, order=0, metadata={}}, RouteDefinition{id='logistics-service', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/logistics/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=lb://anqigou-logistics-service, order=0, metadata={}}, RouteDefinition{id='seller-service', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/seller/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=lb://anqigou-seller-service, order=0, metadata={}}, RouteDefinition{id='admin-service', predicates=[PredicateDefinition{name='Path', args={_genkey_0=/api/admin/**}}], filters=[FilterDefinition{name='StripPrefix', args={_genkey_0=1}}], uri=lb://anqigou-admin-service, order=0, metadata={}}]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [After]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Before]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Between]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Cookie]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Header]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Host]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Method]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Path]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Query]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [ReadBody]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [RemoteAddr]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [XForwardedRemoteAddr]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Weight]
+2025-12-03 18:47:10.873  INFO 34720 --- [  restartedMain] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [CloudFoundryRouteService]
+2025-12-03 18:47:10.913 DEBUG 34720 --- [  restartedMain] s.w.r.r.m.a.RequestMappingHandlerMapping : 0 mappings in 'requestMappingHandlerMapping'
+2025-12-03 18:47:10.914 TRACE 34720 --- [  restartedMain] o.s.w.r.f.s.s.RouterFunctionMapping      : 0 RouterFunction(s) in 'routerFunctionMapping'
+2025-12-03 18:47:10.921 TRACE 34720 --- [  restartedMain] o.s.w.r.handler.SimpleUrlHandlerMapping  : Mapped [/webjars/**] onto ResourceWebHandler [classpath [META-INF/resources/webjars/]]
+2025-12-03 18:47:10.921 TRACE 34720 --- [  restartedMain] o.s.w.r.handler.SimpleUrlHandlerMapping  : Mapped [/**] onto ResourceWebHandler [classpath [static/]]
+2025-12-03 18:47:10.921 DEBUG 34720 --- [  restartedMain] o.s.w.r.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2025-12-03 18:47:10.943 DEBUG 34720 --- [  restartedMain] o.s.w.r.r.m.a.ControllerMethodResolver   : ControllerAdvice beans: none
+2025-12-03 18:47:12.389  INFO 34720 --- [  restartedMain] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2025-12-03 18:47:12.733  WARN 34720 --- [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : Unable to start LiveReload server
+2025-12-03 18:47:12.758  WARN 34720 --- [  restartedMain] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2025-12-03 18:47:12.807  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [RpcClientFactory] create a new rpc client of 357169f7-595f-4aa4-a92e-ebc034458169
+2025-12-03 18:47:12.836  INFO 34720 --- [  restartedMain] org.reflections.Reflections              : Reflections took 16 ms to scan 1 urls, producing 3 keys and 6 values 
+2025-12-03 18:47:12.853  INFO 34720 --- [  restartedMain] org.reflections.Reflections              : Reflections took 6 ms to scan 1 urls, producing 4 keys and 9 values 
+2025-12-03 18:47:12.862  INFO 34720 --- [  restartedMain] org.reflections.Reflections              : Reflections took 6 ms to scan 1 urls, producing 3 keys and 10 values 
+2025-12-03 18:47:12.868  INFO 34720 --- [  restartedMain] org.reflections.Reflections              : Reflections took 2 ms to scan 1 urls, producing 0 keys and 0 values 
+2025-12-03 18:47:12.873  INFO 34720 --- [  restartedMain] org.reflections.Reflections              : Reflections took 5 ms to scan 1 urls, producing 1 keys and 5 values 
+2025-12-03 18:47:12.881  INFO 34720 --- [  restartedMain] org.reflections.Reflections              : Reflections took 5 ms to scan 1 urls, producing 1 keys and 7 values 
+2025-12-03 18:47:12.888  INFO 34720 --- [  restartedMain] org.reflections.Reflections              : Reflections took 4 ms to scan 1 urls, producing 2 keys and 8 values 
+2025-12-03 18:47:12.892  INFO 34720 --- [  restartedMain] org.reflections.Reflections              : Reflections took 1 ms to scan 1 urls, producing 0 keys and 0 values 
+2025-12-03 18:47:12.893  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [357169f7-595f-4aa4-a92e-ebc034458169] RpcClient init label, labels = {module=naming, source=sdk}
+2025-12-03 18:47:12.895  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [357169f7-595f-4aa4-a92e-ebc034458169] RpcClient init, ServerListFactory = com.alibaba.nacos.client.naming.core.ServerListManager
+2025-12-03 18:47:12.895  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [357169f7-595f-4aa4-a92e-ebc034458169] Registry connection listener to current client:com.alibaba.nacos.client.naming.remote.gprc.redo.NamingGrpcRedoService
+2025-12-03 18:47:12.895  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [357169f7-595f-4aa4-a92e-ebc034458169] Register server push request handler:com.alibaba.nacos.client.naming.remote.gprc.NamingPushRequestHandler
+2025-12-03 18:47:12.896  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [357169f7-595f-4aa4-a92e-ebc034458169] Try to connect to server on start up, server: {serverIp = 'localhost', server main port = 8848}
+2025-12-03 18:47:14.413  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [357169f7-595f-4aa4-a92e-ebc034458169] Success to connect to server [localhost:8848] on start up, connectionId = 1764758834228_127.0.0.1_62274
+2025-12-03 18:47:14.414  INFO 34720 --- [t.remote.worker] com.alibaba.nacos.common.remote.client   : [357169f7-595f-4aa4-a92e-ebc034458169] Notify connected event to listeners.
+2025-12-03 18:47:14.414  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [357169f7-595f-4aa4-a92e-ebc034458169] Register server push request handler:com.alibaba.nacos.common.remote.client.RpcClient$ConnectResetRequestHandler
+2025-12-03 18:47:14.415  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [357169f7-595f-4aa4-a92e-ebc034458169] Register server push request handler:com.alibaba.nacos.common.remote.client.RpcClient$$Lambda$1250/0x00000008007b5840
+2025-12-03 18:47:14.450  WARN 34720 --- [  restartedMain] onfigReactiveWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'; nested exception is org.springframework.boot.web.server.PortInUseException: Port 8080 is already in use
+2025-12-03 18:47:14.466 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition user-service applying {_genkey_0=/api/auth/**, _genkey_1=/api/user/**, _genkey_2=/api/feedback/**} to Path
+2025-12-03 18:47:14.478 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition user-service applying filter {redis-rate-limiter.replenish-rate=10, redis-rate-limiter.burst-capacity=20, key-resolver=#{@ipKeyResolver}} to RequestRateLimiter
+2025-12-03 18:47:14.493 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition user-service applying filter {_genkey_0=1} to StripPrefix
+2025-12-03 18:47:14.495 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: user-service
+2025-12-03 18:47:14.495 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition product-service applying {_genkey_0=/api/product/**} to Path
+2025-12-03 18:47:14.496 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition product-service applying filter {redis-rate-limiter.replenish-rate=10, redis-rate-limiter.burst-capacity=20, key-resolver=#{@ipKeyResolver}} to RequestRateLimiter
+2025-12-03 18:47:14.497 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition product-service applying filter {_genkey_0=1} to StripPrefix
+2025-12-03 18:47:14.497 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: product-service
+2025-12-03 18:47:14.497 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition order-service applying {_genkey_0=/api/order/**, _genkey_1=/api/cart/**} to Path
+2025-12-03 18:47:14.497 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition order-service applying filter {redis-rate-limiter.replenish-rate=10, redis-rate-limiter.burst-capacity=20, key-resolver=#{@ipKeyResolver}} to RequestRateLimiter
+2025-12-03 18:47:14.498 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition order-service applying filter {_genkey_0=1} to StripPrefix
+2025-12-03 18:47:14.498 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: order-service
+2025-12-03 18:47:14.498 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition payment-service applying {_genkey_0=/api/payment/**} to Path
+2025-12-03 18:47:14.499 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition payment-service applying filter {redis-rate-limiter.replenish-rate=10, redis-rate-limiter.burst-capacity=20, key-resolver=#{@ipKeyResolver}} to RequestRateLimiter
+2025-12-03 18:47:14.499 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition payment-service applying filter {_genkey_0=1} to StripPrefix
+2025-12-03 18:47:14.500 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: payment-service
+2025-12-03 18:47:14.500 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition logistics-service applying {_genkey_0=/api/logistics/**} to Path
+2025-12-03 18:47:14.500 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition logistics-service applying filter {redis-rate-limiter.replenish-rate=10, redis-rate-limiter.burst-capacity=20, key-resolver=#{@ipKeyResolver}} to RequestRateLimiter
+2025-12-03 18:47:14.501 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition logistics-service applying filter {_genkey_0=1} to StripPrefix
+2025-12-03 18:47:14.501 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: logistics-service
+2025-12-03 18:47:14.501 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition seller-service applying {_genkey_0=/api/seller/**} to Path
+2025-12-03 18:47:14.501 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition seller-service applying filter {redis-rate-limiter.replenish-rate=10, redis-rate-limiter.burst-capacity=20, key-resolver=#{@ipKeyResolver}} to RequestRateLimiter
+2025-12-03 18:47:14.502 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition seller-service applying filter {_genkey_0=1} to StripPrefix
+2025-12-03 18:47:14.502 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: seller-service
+2025-12-03 18:47:14.502 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition admin-service applying {_genkey_0=/api/admin/**} to Path
+2025-12-03 18:47:14.502 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition admin-service applying filter {redis-rate-limiter.replenish-rate=10, redis-rate-limiter.burst-capacity=20, key-resolver=#{@ipKeyResolver}} to RequestRateLimiter
+2025-12-03 18:47:14.503 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition admin-service applying filter {_genkey_0=1} to StripPrefix
+2025-12-03 18:47:14.503 DEBUG 34720 --- [ask-Scheduler-1] o.s.c.g.r.RouteDefinitionRouteLocator    : RouteDefinition matched: admin-service
+2025-12-03 18:47:14.952  INFO 34720 --- [ient-executor-6] com.alibaba.nacos.common.remote.client   : [357169f7-595f-4aa4-a92e-ebc034458169] Receive server push request, request = NotifySubscriberRequest, requestId = 18
+2025-12-03 18:47:14.952  INFO 34720 --- [ient-executor-6] com.alibaba.nacos.common.remote.client   : [357169f7-595f-4aa4-a92e-ebc034458169] Ack server push request, request = NotifySubscriberRequest, requestId = 18
+2025-12-03 18:47:15.113  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : Shutdown rpc client, set status to shutdown
+2025-12-03 18:47:15.114  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : Shutdown client event executor java.util.concurrent.ScheduledThreadPoolExecutor@145d791b[Running, pool size = 2, active threads = 2, queued tasks = 0, completed tasks = 0]
+2025-12-03 18:47:15.114  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : Close current connection 1764758834228_127.0.0.1_62274
+2025-12-03 18:47:15.115  INFO 34720 --- [ient-executor-7] c.a.n.c.remote.client.grpc.GrpcClient    : [1764758834228_127.0.0.1_62274]Ignore complete event,isRunning:false,isAbandon=false
+2025-12-03 18:47:15.117  INFO 34720 --- [  restartedMain] c.a.n.c.remote.client.grpc.GrpcClient    : Shutdown grpc executor java.util.concurrent.ThreadPoolExecutor@72fcbdb3[Running, pool size = 8, active threads = 0, queued tasks = 0, completed tasks = 8]
+2025-12-03 18:47:15.119  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [RpcClientFactory] create a new rpc client of 7641c583-05cc-46f6-a1ac-0f47437d0739
+2025-12-03 18:47:15.120  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [7641c583-05cc-46f6-a1ac-0f47437d0739] RpcClient init label, labels = {module=naming, source=sdk}
+2025-12-03 18:47:15.120  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [7641c583-05cc-46f6-a1ac-0f47437d0739] RpcClient init, ServerListFactory = com.alibaba.nacos.client.naming.core.ServerListManager
+2025-12-03 18:47:15.120  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [7641c583-05cc-46f6-a1ac-0f47437d0739] Registry connection listener to current client:com.alibaba.nacos.client.naming.remote.gprc.redo.NamingGrpcRedoService
+2025-12-03 18:47:15.120  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [7641c583-05cc-46f6-a1ac-0f47437d0739] Register server push request handler:com.alibaba.nacos.client.naming.remote.gprc.NamingPushRequestHandler
+2025-12-03 18:47:15.120  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [7641c583-05cc-46f6-a1ac-0f47437d0739] Try to connect to server on start up, server: {serverIp = 'localhost', server main port = 8848}
+2025-12-03 18:47:15.236  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [7641c583-05cc-46f6-a1ac-0f47437d0739] Success to connect to server [localhost:8848] on start up, connectionId = 1764758835125_127.0.0.1_51588
+2025-12-03 18:47:15.236  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [7641c583-05cc-46f6-a1ac-0f47437d0739] Register server push request handler:com.alibaba.nacos.common.remote.client.RpcClient$ConnectResetRequestHandler
+2025-12-03 18:47:15.236  INFO 34720 --- [t.remote.worker] com.alibaba.nacos.common.remote.client   : [7641c583-05cc-46f6-a1ac-0f47437d0739] Notify connected event to listeners.
+2025-12-03 18:47:15.236  INFO 34720 --- [  restartedMain] com.alibaba.nacos.common.remote.client   : [7641c583-05cc-46f6-a1ac-0f47437d0739] Register server push request handler:com.alibaba.nacos.common.remote.client.RpcClient$$Lambda$1250/0x00000008007b5840
+2025-12-03 18:47:15.255  INFO 34720 --- [  restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2025-12-03 18:47:15.268  INFO 34720 --- [  restartedMain] ConditionEvaluationReportLoggingListener : 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2025-12-03 18:47:15.291 ERROR 34720 --- [  restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+2025-12-03 18:47:16.261  WARN 34720 --- [       Thread-7] c.a.n.common.http.HttpClientBeanHolder   : [HttpClientBeanHolder] Start destroying common HttpClient
+2025-12-03 18:47:16.261  WARN 34720 --- [      Thread-11] c.a.nacos.common.notify.NotifyCenter     : [NotifyCenter] Start destroying Publisher
+2025-12-03 18:47:16.261  WARN 34720 --- [      Thread-11] c.a.nacos.common.notify.NotifyCenter     : [NotifyCenter] Destruction of the end
+2025-12-03 18:47:16.261  WARN 34720 --- [       Thread-7] c.a.n.common.http.HttpClientBeanHolder   : [HttpClientBeanHolder] Destruction of the end
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  15.076 s
+[INFO] Finished at: 2025-12-03T18:47:16+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:2.7.14:run (default-cli) on project anqigou-gateway: Application finished with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

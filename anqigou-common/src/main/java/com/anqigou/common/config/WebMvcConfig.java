@@ -23,11 +23,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(userIdInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(
-                    "/api/auth/login",
-                    "/api/auth/register",
-                    "/api/auth/send-code",
-                    "/api/auth/login-with-code",
-                    "/api/auth/wechat-login",
+                    "/auth/login",
+                    "/auth/register",
+                    "/auth/send-code",
+                    "/auth/login-with-code",
+                    "/auth/wechat-login",
+                    "/product/list",
+                    "/product/search",
+                    "/product/hot",
+                    "/product/recommended",
+                    "/product/categories",
+                    "/product/categories/first-level",
+                    "/product/categories/sub",
                     "/error",
                     "/actuator/**"
                 );
