@@ -71,6 +71,12 @@ mybatis-plus:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+# 微信小程序配置
+wechat:
+  miniapp:
+    appid: wx8dbab4f617ac7415 # 替换为真实的小程序AppID
+    secret: 397b54148106ca36fa1217e6afd9d108 # 替换为真实的小程序密钥
+
 server:
   port: 8081
   servlet:

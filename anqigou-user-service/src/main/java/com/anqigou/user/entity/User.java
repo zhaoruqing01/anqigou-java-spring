@@ -50,16 +50,25 @@ public class User {
     /**
      * 微信用户ID
      */
+    @TableField("wechat_open_id")
     private String wechatOpenId;
+    
+    /**
+     * 微信UnionID
+     */
+    @TableField(exist = false)
+    private String wechatUnionid;
     
     /**
      * 微信昵称
      */
+    @TableField("wechat_nickname")
     private String wechatNickname;
     
     /**
      * 微信头像
      */
+    @TableField("wechat_avatar")
     private String wechatAvatar;
     
     /**

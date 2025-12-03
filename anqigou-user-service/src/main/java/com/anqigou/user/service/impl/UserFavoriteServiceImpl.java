@@ -17,10 +17,13 @@ import com.anqigou.user.service.UserFavoriteService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 用户收藏服务实现类
  */
 @Service
+@Slf4j
 public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, UserFavorite> implements UserFavoriteService {
 
     @Autowired

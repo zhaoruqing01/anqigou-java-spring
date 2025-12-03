@@ -73,9 +73,24 @@ public class AuthController {
      * 微信登录
      */
     @PostMapping("/wechat-login")
-    public ApiResponse<LoginResponse> wechatLogin(@RequestParam String code) {
-        LoginResponse response = authService.wechatLogin(code);
+    public ApiResponse<LoginResponse> wechatLogin(@RequestBody WechatLoginRequest request) {
+        LoginResponse response = authService.wechatLogin(request.getCode());
         return ApiResponse.success("登录成功", response);
+    }
+    
+    /**
+     * 微信登录请求参数
+     */
+    static class WechatLoginRequest {
+        private String code;
+        
+        public String getCode() {
+            return code;
+        }
+        
+        public void setCode(String code) {
+            this.code = code;
+        }
     }
     
     /**
