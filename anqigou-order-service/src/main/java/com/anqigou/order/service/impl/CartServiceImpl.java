@@ -212,18 +212,32 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void removeItemFromCart(String userId, String skuId) {
-        // 从数据库中删除指定的购物车项
+        log.info("开始删除购物车商品: userId={}, skuId={}", userId, skuId);
+        
+        // 先查询购物车项是否存在
         QueryWrapper<CartItem> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", userId)
                    .eq("sku_id", skuId);
         
-        int deletedCount = cartMapper.delete(queryWrapper);
+        CartItem cartItem = cartMapper.selectOne(queryWrapper);
         
-        if (deletedCount == 0) {
+        log.info("查询购物车商品结果: cartItem={}", cartItem);
+        
+        if (cartItem != null) {
+            log.info("购物车商品详情: id={}, userId={}, productId={}, skuId={}, quantity={}, createTime={}, updateTime={}", 
+                    cartItem.getId(), cartItem.getUserId(), cartItem.getProductId(), 
+                    cartItem.getSkuId(), cartItem.getQuantity(), cartItem.getCreateTime(), cartItem.getUpdateTime());
+        }
+        
+        if (cartItem == null) {
+            log.warn("购物车中不存在该商品: userId={}, skuId={}", userId, skuId);
             throw new BizException(404, "购物车中不存在该商品");
         }
         
-        log.info("Removed item from cart: userId={}, skuId={}", userId, skuId);
+        // 从数据库中删除指定的购物车项
+        int deletedCount = cartMapper.delete(queryWrapper);
+        
+        log.info("删除购物车商品完成: userId={}, skuId={}, deletedCount={}", userId, skuId, deletedCount);
     }
 
     @Override
