@@ -41,7 +41,7 @@ elasticsearch:
   port: 9200
 
 server:
-  port: 8083
+  port: 8082
   servlet:
     context-path: /
 

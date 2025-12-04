@@ -1,19 +1,29 @@
 package com.anqigou.seller.controller;
 
-import com.anqigou.common.response.ApiResponse;
-import com.anqigou.seller.service.SellerService;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import com.anqigou.common.response.ApiResponse;
+import com.anqigou.seller.service.SellerService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 商家控制器
  */
 @RestController
-@RequestMapping("/api/seller")
+@RequestMapping("/seller")
 @Validated
 @Slf4j
 public class SellerController {
@@ -25,7 +35,7 @@ public class SellerController {
      * 商家注册申请
      */
     @PostMapping("/register")
-    public ApiResponse<Void> registerSeller(@RequestParam String shopName,
+    public ApiResponse<String> registerSeller(@RequestParam String shopName,
                                            @RequestParam String licenseNo,
                                            @RequestParam String licenseImage,
                                            @RequestAttribute String userId) {
@@ -46,7 +56,7 @@ public class SellerController {
      * 更新商家信息
      */
     @PutMapping("/{sellerId}/info")
-    public ApiResponse<Void> updateSellerInfo(@PathVariable String sellerId,
+    public ApiResponse<String> updateSellerInfo(@PathVariable String sellerId,
                                              @RequestBody Map<String, Object> sellerInfo) {
         sellerService.updateSellerInfo(sellerId, sellerInfo);
         return ApiResponse.success("商家信息已更新");
@@ -67,7 +77,7 @@ public class SellerController {
      * 发货
      */
     @PostMapping("/orders/{orderId}/ship")
-    public ApiResponse<Void> shipOrder(@PathVariable String orderId,
+    public ApiResponse<String> shipOrder(@PathVariable String orderId,
                                       @RequestParam String courierCompany,
                                       @RequestParam String trackingNo,
                                       @RequestAttribute String userId) {

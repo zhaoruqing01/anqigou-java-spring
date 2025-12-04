@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anqigou.user.mapper.UserFavoriteMapper">
+    
+    <!-- 查询用户收藏列表，关联商品信息 -->
+    <select id="selectFavoriteListWithProductInfo" resultType="com.anqigou.user.dto.FavoriteItemDTO">
+        SELECT 
+            uf.id, 
+            uf.user_id AS userId, 
+            uf.product_id AS productId, 
+            uf.create_time AS createTime, 
+            p.name AS productName, 
+            p.main_image AS mainImage, 
+            p.price, 
+            p.original_price AS originalPrice, 
+            p.stock, 
+            p.sold_count AS soldCount, 
+            p.rating, 
+            p.rating_count AS ratingCount
+        FROM 
+            user_favorite uf
+        LEFT JOIN 
+            product p ON uf.product_id = p.id
+        WHERE 
+            uf.user_id = #{userId}
+        ORDER BY 
+            uf.create_time DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+</mapper>

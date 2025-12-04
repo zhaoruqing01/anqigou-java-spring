@@ -18,6 +18,8 @@ CREATE TABLE `user` (
   `status` tinyint DEFAULT 0 COMMENT '账户状态（0-正常，1-禁用）',
   `last_login_time` datetime COMMENT '最后登录时间',
   `last_login_ip` varchar(50) COMMENT '最后登录IP',
+  `personalized_recommendation` tinyint DEFAULT 1 COMMENT '个性化推荐开关（0-关闭，1-开启）',
+  `location_authorization` tinyint DEFAULT 1 COMMENT '位置授权开关（0-关闭，1-开启）',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除（0-未删除，1-已删除）',
@@ -263,6 +265,154 @@ CREATE TABLE `seller` (
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商家表';
 
+-- 设备管理表
+CREATE TABLE `user_device` (
+  `id` varchar(36) NOT NULL COMMENT '设备ID',
+  `user_id` varchar(36) NOT NULL COMMENT '用户ID',
+  `device_name` varchar(100) COMMENT '设备名称',
+  `device_type` varchar(50) COMMENT '设备类型（如：android、ios、web）',
+  `device_token` varchar(200) NOT NULL COMMENT '设备令牌',
+  `login_ip` varchar(50) COMMENT '登录IP',
+  `login_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '登录时间',
+  `last_active_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后活跃时间',
+  `status` tinyint DEFAULT 1 COMMENT '状态（0-已下线，1-在线）',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_device_token` (`device_token`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户设备管理表';
+
+-- 售后申请表
+CREATE TABLE `after_sale_apply` (
+  `id` varchar(36) NOT NULL COMMENT '售后申请ID',
+  `order_id` varchar(36) NOT NULL COMMENT '订单ID',
+  `order_item_id` varchar(36) NOT NULL COMMENT '订单项ID',
+  `user_id` varchar(36) NOT NULL COMMENT '用户ID',
+  `seller_id` varchar(36) NOT NULL COMMENT '商家ID',
+  `type` varchar(20) NOT NULL COMMENT '售后类型（refund-仅退款，return_refund-退货退款，exchange-换货）',
+  `reason` varchar(200) NOT NULL COMMENT '售后原因',
+  `description` longtext COMMENT '详细描述',
+  `amount` bigint NOT NULL COMMENT '申请金额（单位：分）',
+  `images` longtext COMMENT '凭证图片（JSON数组）',
+  `status` varchar(20) DEFAULT 'pending' COMMENT '售后状态（pending-待审核，approved-已同意，rejected-已拒绝，processing-处理中，completed-已完成，cancelled-已取消）',
+  `refund_amount` bigint DEFAULT 0 COMMENT '实际退款金额（单位：分）',
+  `express_company` varchar(100) COMMENT '快递公司',
+  `express_no` varchar(100) COMMENT '快递单号',
+  `seller_remark` longtext COMMENT '商家备注',
+  `admin_remark` longtext COMMENT '平台备注',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除（0-未删除，1-已删除）',
+  PRIMARY KEY (`id`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_seller_id` (`seller_id`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='售后申请表';
+
+-- 售后日志表
+CREATE TABLE `after_sale_log` (
+  `id` varchar(36) NOT NULL COMMENT '日志ID',
+  `after_sale_id` varchar(36) NOT NULL COMMENT '售后申请ID',
+  `operator_id` varchar(36) NOT NULL COMMENT '操作人ID',
+  `operator_type` varchar(20) NOT NULL COMMENT '操作人类型（user-用户，seller-商家，admin-平台）',
+  `action` varchar(50) NOT NULL COMMENT '操作类型',
+  `content` longtext COMMENT '操作内容',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_after_sale_id` (`after_sale_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='售后日志表';
+
+-- 意见反馈表
+CREATE TABLE `feedback` (
+  `id` varchar(36) NOT NULL COMMENT '反馈ID',
+  `user_id` varchar(36) NOT NULL COMMENT '用户ID',
+  `type` varchar(50) NOT NULL COMMENT '反馈类型（bug-功能异常，suggestion-功能建议，complaint-投诉建议，other-其他）',
+  `title` varchar(200) NOT NULL COMMENT '反馈标题',
+  `content` longtext NOT NULL COMMENT '反馈内容',
+  `images` longtext COMMENT '凭证图片（JSON数组）',
+  `contact_info` varchar(200) COMMENT '联系方式',
+  `status` varchar(20) DEFAULT 'pending' COMMENT '处理状态（pending-待处理，processing-处理中，completed-已完成）',
+  `reply_content` longtext COMMENT '回复内容',
+  `reply_time` datetime COMMENT '回复时间',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除（0-未删除，1-已删除）',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='意见反馈表';
+
+-- 物流信息表
+CREATE TABLE `logistics` (
+  `id` varchar(36) NOT NULL COMMENT '物流ID',
+  `order_id` varchar(36) NOT NULL COMMENT '订单ID',
+  `order_no` varchar(20) NOT NULL COMMENT '订单号',
+  `courier_company` varchar(50) NOT NULL COMMENT '快递公司',
+  `tracking_no` varchar(100) NOT NULL COMMENT '快递单号',
+  `sender_name` varchar(50) COMMENT '发件人姓名',
+  `sender_phone` varchar(11) COMMENT '发件人手机号',
+  `sender_province` varchar(50) COMMENT '发件省份',
+  `sender_city` varchar(50) COMMENT '发件城市',
+  `sender_address` varchar(500) COMMENT '发件详细地址',
+  `receiver_name` varchar(50) COMMENT '收件人姓名',
+  `receiver_phone` varchar(11) COMMENT '收件人手机号',
+  `receiver_province` varchar(50) COMMENT '收件省份',
+  `receiver_city` varchar(50) COMMENT '收件城市',
+  `receiver_address` varchar(500) COMMENT '收件详细地址',
+  `status` varchar(20) DEFAULT 'pending' COMMENT '物流状态（pending-待发货，shipped-已发货，transit-运输中，delivering-派送中，signed-已签收，exception-异常）',
+  `shipped_time` datetime COMMENT '发货时间',
+  `signed_time` datetime COMMENT '签收时间',
+  `last_update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_tracking_no` (`tracking_no`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='物流信息表';
+
+-- 物流轨迹表
+CREATE TABLE `logistics_track` (
+  `id` varchar(36) NOT NULL COMMENT '轨迹ID',
+  `logistics_id` varchar(36) NOT NULL COMMENT '物流ID',
+  `tracking_no` varchar(100) NOT NULL COMMENT '快递单号',
+  `operate_time` datetime NOT NULL COMMENT '操作时间',
+  `operate_city` varchar(50) COMMENT '操作城市',
+  `operate_location` varchar(200) COMMENT '操作地点',
+  `description` varchar(500) NOT NULL COMMENT '轨迹描述',
+  `courier_name` varchar(50) COMMENT '快递员姓名',
+  `courier_phone` varchar(11) COMMENT '快递员手机号',
+  `sort_order` int DEFAULT 0 COMMENT '排序号',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_logistics_id` (`logistics_id`),
+  KEY `idx_operate_time` (`operate_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='物流轨迹表';
+
+-- 物流评价表
+CREATE TABLE `logistics_evaluation` (
+  `id` varchar(36) NOT NULL COMMENT '评价ID',
+  `logistics_id` varchar(36) NOT NULL COMMENT '物流ID',
+  `order_id` varchar(36) NOT NULL COMMENT '订单ID',
+  `user_id` varchar(36) NOT NULL COMMENT '用户ID',
+  `speed_rating` tinyint NOT NULL COMMENT '物流速度评分（1-5分）',
+  `service_rating` tinyint NOT NULL COMMENT '快递员服务评分（1-5分）',
+  `quality_rating` tinyint NOT NULL COMMENT '商品完好度评分（1-5分）',
+  `overall_rating` decimal(3,2) NOT NULL COMMENT '综合评分',
+  `content` longtext COMMENT '评价内容',
+  `images` longtext COMMENT '评价图片（JSON数组）',
+  `is_anonymous` tinyint DEFAULT 0 COMMENT '是否匿名（0-否，1-是）',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `deleted` tinyint DEFAULT 0 COMMENT '逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_logistics_id` (`logistics_id`),
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='物流评价表';
+
 -- 创建索引以提高查询性能
 CREATE INDEX idx_product_seller ON product(seller_id);
 CREATE INDEX idx_product_category ON product(category_id);
@@ -270,3 +420,12 @@ CREATE INDEX idx_product_status ON product(status);
 CREATE INDEX idx_order_user ON orders(user_id);
 CREATE INDEX idx_order_status ON orders(status);
 CREATE INDEX idx_payment_order ON payment(order_id);
+CREATE INDEX idx_after_sale_order ON after_sale_apply(order_id);
+CREATE INDEX idx_after_sale_user ON after_sale_apply(user_id);
+CREATE INDEX idx_after_sale_seller ON after_sale_apply(seller_id);
+CREATE INDEX idx_after_sale_status ON after_sale_apply(status);
+CREATE INDEX idx_feedback_user ON feedback(user_id);
+CREATE INDEX idx_feedback_status ON feedback(status);
+CREATE INDEX idx_logistics_order ON logistics(order_id);
+CREATE INDEX idx_logistics_status ON logistics(status);
+CREATE INDEX idx_logistics_track_logistics ON logistics_track(logistics_id);

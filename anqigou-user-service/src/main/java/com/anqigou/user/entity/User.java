@@ -50,16 +50,25 @@ public class User {
     /**
      * 微信用户ID
      */
+    @TableField("wechat_open_id")
     private String wechatOpenId;
+    
+    /**
+     * 微信UnionID
+     */
+    @TableField(exist = false)
+    private String wechatUnionid;
     
     /**
      * 微信昵称
      */
+    @TableField("wechat_nickname")
     private String wechatNickname;
     
     /**
      * 微信头像
      */
+    @TableField("wechat_avatar")
     private String wechatAvatar;
     
     /**
@@ -91,6 +100,16 @@ public class User {
      * 最后登录IP
      */
     private String lastLoginIp;
+    
+    /**
+     * 个性化推荐开关（0-关闭，1-开启）
+     */
+    private Integer personalizedRecommendation;
+    
+    /**
+     * 位置授权开关（0-关闭，1-开启）
+     */
+    private Integer locationAuthorization;
     
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

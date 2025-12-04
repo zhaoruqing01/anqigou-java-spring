@@ -1,10 +1,14 @@
 package com.anqigou.product.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.anqigou.product.dto.ProductDetailDTO;
 import com.anqigou.product.dto.ProductListItemDTO;
+import com.anqigou.product.dto.SkuStockDTO;
+import com.anqigou.product.entity.ProductCategory;
+import com.anqigou.product.entity.ProductReview;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-
-import java.util.List;
 
 /**
  * 商品服务接口
@@ -36,4 +40,44 @@ public interface ProductService {
      * 获取推荐商品
      */
     List<ProductListItemDTO> getRecommendedProducts(String userId, int limit);
+    
+    /**
+     * 获取商品分类列表
+     */
+    List<ProductCategory> listCategories();
+    
+    /**
+     * 获取一级分类列表
+     */
+    List<ProductCategory> listFirstLevelCategories();
+    
+    /**
+     * 根据父分类ID获取子分类列表
+     */
+    List<ProductCategory> listSubCategories(String parentId);
+    
+    /**
+     * 获取商品评价列表
+     */
+    Page<ProductReview> listProductReviews(int pageNum, int pageSize, String productId, Integer rating);
+    
+    /**
+     * 获取商品评价统计
+     */
+    Map<String, Object> getProductReviewStats(String productId);
+    
+    /**
+     * 批量获取SKU库存信息（用于订单创建）
+     */
+    List<SkuStockDTO> batchGetSkuStock(List<String> skuIds);
+    
+    /**
+     * 扣减库存
+     */
+    void deductStock(String skuId, Integer quantity);
+    
+    /**
+     * 归还库存（订单取消时）
+     */
+    void returnStock(String skuId, Integer quantity);
 }

@@ -7,12 +7,10 @@ spring:
       discovery:
         server-addr: localhost:8848
         namespace: public
-        group: DEFAULT_GROUP
       config:
         server-addr: localhost:8848
         file-extension: yml
         namespace: public
-        group: DEFAULT_GROUP
         import-check:
           enabled: false
 
@@ -48,12 +46,36 @@ spring:
         min-idle: 5
         max-wait: 10000ms
 
+  # Spring Boot DevTools 配置
+  devtools:
+    restart:
+      enabled: true
+      # 排除不需要重启的目录
+      exclude: WEB-INF/**,static/**,public/**,templates/**
+    livereload:
+      enabled: true
+  # 禁用模板缓存
+  thymeleaf:
+    cache: false
+  # 禁用静态资源缓存
+  web:
+    resources:
+      static-locations: classpath:/static/
+      cache:
+        period: 0
+
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.anqigou.user.entity
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 微信小程序配置
+wechat:
+  miniapp:
+    appid: wx8dbab4f617ac7415 # 替换为真实的小程序AppID
+    secret: 397b54148106ca36fa1217e6afd9d108 # 替换为真实的小程序密钥
 
 server:
   port: 8081
@@ -64,3 +86,6 @@ logging:
   level:
     root: info
     com.anqigou: debug
+    org.springframework.web.servlet: trace
+    org.springframework.web: trace
+    org.springframework.http: trace

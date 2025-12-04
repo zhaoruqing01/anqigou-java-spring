@@ -1,7 +1,9 @@
 package com.anqigou.product.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +13,14 @@ import com.anqigou.common.exception.BizException;
 import com.anqigou.product.dto.ProductDetailDTO;
 import com.anqigou.product.dto.ProductListItemDTO;
 import com.anqigou.product.dto.ProductSkuDTO;
+import com.anqigou.product.dto.SkuStockDTO;
 import com.anqigou.product.entity.Product;
+import com.anqigou.product.entity.ProductCategory;
+import com.anqigou.product.entity.ProductReview;
 import com.anqigou.product.entity.ProductSku;
+import com.anqigou.product.mapper.ProductCategoryMapper;
 import com.anqigou.product.mapper.ProductMapper;
+import com.anqigou.product.mapper.ProductReviewMapper;
 import com.anqigou.product.mapper.ProductSkuMapper;
 import com.anqigou.product.service.ProductService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -33,6 +40,12 @@ public class ProductServiceImpl implements ProductService {
     
     @Autowired
     private ProductSkuMapper productSkuMapper;
+    
+    @Autowired
+    private ProductCategoryMapper productCategoryMapper;
+    
+    @Autowired
+    private ProductReviewMapper productReviewMapper;
     
     @Override
     public ProductDetailDTO getProductDetail(String productId, String userId) {
@@ -109,7 +122,14 @@ public class ProductServiceImpl implements ProductService {
         }
         
         if (keyword != null && !keyword.isEmpty()) {
-            queryWrapper.like("name", keyword);
+            // 模糊搜索：商品名称、品牌、描述
+            queryWrapper.and(wrapper -> wrapper
+                    .like("name", keyword)
+                    .or()
+                    .like("brand", keyword)
+                    .or()
+                    .like("description", keyword)
+            );
         }
         
         // 排序处理
@@ -196,5 +216,164 @@ public class ProductServiceImpl implements ProductService {
                         .rating(product.getRating() != null ? product.getRating().doubleValue() : 0.0)
                         .build())
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<ProductCategory> listCategories() {
+        QueryWrapper<ProductCategory> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("deleted", 0)
+                .eq("status", 1)
+                .orderByAsc("sort_order")
+                .orderByAsc("level");
+        
+        return productCategoryMapper.selectList(queryWrapper);
+    }
+    
+    @Override
+    public List<ProductCategory> listFirstLevelCategories() {
+        QueryWrapper<ProductCategory> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("deleted", 0)
+                .eq("status", 1)
+                .eq("level", 1)
+                .orderByAsc("sort_order");
+        
+        return productCategoryMapper.selectList(queryWrapper);
+    }
+    
+    @Override
+    public List<ProductCategory> listSubCategories(String parentId) {
+        QueryWrapper<ProductCategory> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("deleted", 0)
+                .eq("status", 1)
+                .eq("parent_id", parentId)
+                .orderByAsc("sort_order");
+        
+        return productCategoryMapper.selectList(queryWrapper);
+    }
+    
+    @Override
+    public Page<ProductReview> listProductReviews(int pageNum, int pageSize, String productId, Integer rating) {
+        QueryWrapper<ProductReview> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("deleted", 0)
+                .eq("product_id", productId)
+                .orderByDesc("create_time");
+        
+        if (rating != null) {
+            queryWrapper.eq("rating", rating);
+        }
+        
+        Page<ProductReview> page = new Page<>(pageNum, pageSize);
+        productReviewMapper.selectPage(page, queryWrapper);
+        
+        return page;
+    }
+    
+    @Override
+    public Map<String, Object> getProductReviewStats(String productId) {
+        QueryWrapper<ProductReview> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("deleted", 0)
+                .eq("product_id", productId);
+        
+        // 获取总评价数
+        Long totalCount = productReviewMapper.selectCount(queryWrapper);
+        
+        // 获取各评分数量
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalCount", totalCount);
+        stats.put("rating1Count", 0);
+        stats.put("rating2Count", 0);
+        stats.put("rating3Count", 0);
+        stats.put("rating4Count", 0);
+        stats.put("rating5Count", 0);
+        
+        if (totalCount > 0) {
+            // 统计各评分数量
+            for (int i = 1; i <= 5; i++) {
+                queryWrapper.clear();
+                queryWrapper.eq("deleted", 0)
+                        .eq("product_id", productId)
+                        .eq("rating", i);
+                Long count = productReviewMapper.selectCount(queryWrapper);
+                stats.put("rating" + i + "Count", count);
+            }
+        } else {
+            stats.put("avgRating", 0.0);
+        }
+        
+        return stats;
+    }
+    
+    @Override
+    public List<SkuStockDTO> batchGetSkuStock(List<String> skuIds) {
+        if (skuIds == null || skuIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        QueryWrapper<ProductSku> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", skuIds)
+                .eq("deleted", 0);
+        
+        List<ProductSku> skus = productSkuMapper.selectList(queryWrapper);
+        
+        return skus.stream()
+                .map(sku -> {
+                    // 查询商品信息
+                    Product product = productMapper.selectById(sku.getProductId());
+                    
+                    return SkuStockDTO.builder()
+                            .skuId(sku.getId())
+                            .productId(sku.getProductId())
+                            .productName(product != null ? product.getName() : "未知商品")
+                            .specName(sku.getSpecName())
+                            .specValueJson(sku.getSpecValueJson())
+                            .price(sku.getPrice())
+                            .stock(sku.getStock())
+                            .sellerId(product != null ? product.getSellerId() : "default-seller")
+                            .mainImage(product != null ? product.getMainImage() : "")
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public void deductStock(String skuId, Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new BizException(400, "扣减数量必须大于0");
+        }
+        
+        ProductSku sku = productSkuMapper.selectById(skuId);
+        
+        if (sku == null || sku.getDeleted() == 1) {
+            throw new BizException(404, "SKU不存在");
+        }
+        
+        if (sku.getStock() < quantity) {
+            throw new BizException(400, "库存不足，当前库存：" + sku.getStock());
+        }
+        
+        // 扣减库存
+        sku.setStock(sku.getStock() - quantity);
+        productSkuMapper.updateById(sku);
+        
+        log.info("扣减库存成功: skuId={}, quantity={}, remainStock={}", skuId, quantity, sku.getStock());
+    }
+    
+    @Override
+    public void returnStock(String skuId, Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new BizException(400, "归还数量必须大于0");
+        }
+        
+        ProductSku sku = productSkuMapper.selectById(skuId);
+        
+        if (sku == null || sku.getDeleted() == 1) {
+            throw new BizException(404, "SKU不存在");
+        }
+        
+        // 归还库存
+        sku.setStock(sku.getStock() + quantity);
+        productSkuMapper.updateById(sku);
+        
+        log.info("归还库存成功: skuId={}, quantity={}, currentStock={}", skuId, quantity, sku.getStock());
     }
 }
