@@ -62,3 +62,12 @@ logging:
   level:
     root: info
     com.anqigou: debug
+
+# 快递100 API配置
+kuaidi100:
+  # 这里需要填写真实的快递100 API密钥和客户编号
+  api-key: EQSKhWGU7976
+  customer: D5D0F76F915DDC37AE25DE6FB1E17441
+  secret: EQSKhWGU7976
+  # 快递公司编码映射
+  company-code-map: '{"顺丰":"sf","中通":"zto","圆通":"yto","申通":"sto","韵达":"yd"}'
