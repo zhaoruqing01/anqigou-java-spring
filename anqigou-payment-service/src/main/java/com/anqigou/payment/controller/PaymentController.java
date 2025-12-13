@@ -94,4 +94,18 @@ public class PaymentController {
         paymentService.refund(orderId, reason);
         return ApiResponse.success("退款申请已提交");
     }
+    
+    /**
+     * 模拟支付 - 直接完成支付
+     */
+    @PostMapping("/mock/pay")
+    public ApiResponse<Object> mockPay(@RequestBody PaymentRequest request) {
+        try {
+            Object result = paymentService.mockPay(request);
+            return ApiResponse.success(result);
+        } catch (Exception e) {
+            log.error("Mock payment failed", e);
+            return ApiResponse.failure(500, "模拟支付失败: " + e.getMessage());
+        }
+    }
 }

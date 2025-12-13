@@ -229,6 +229,11 @@ public class OrderServiceImpl implements OrderService {
     }
     
     @Override
+    public Order getOrderById(String orderId) {
+        return orderMapper.selectById(orderId);
+    }
+    
+    @Override
     public Object getOrderDetail(String orderId, String userId) {
         Order order = orderMapper.selectById(orderId);
         

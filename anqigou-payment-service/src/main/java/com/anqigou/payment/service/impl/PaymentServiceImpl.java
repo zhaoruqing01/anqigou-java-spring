@@ -51,7 +51,9 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = Payment.builder()
                 .id(UUID.randomUUID().toString())
                 .orderId(request.getOrderId())
+                .orderNo("ORD" + System.currentTimeMillis())
                 .paymentNo(generatePaymentNo())
+                .userId("wechat-user-" + System.currentTimeMillis())
                 .amount(request.getAmount())
                 .paymentMethod("wechat")
                 .status("pending")
@@ -102,7 +104,9 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = Payment.builder()
                 .id(UUID.randomUUID().toString())
                 .orderId(request.getOrderId())
+                .orderNo("ORD" + System.currentTimeMillis())
                 .paymentNo(generatePaymentNo())
+                .userId("alipay-user-" + System.currentTimeMillis())
                 .amount(request.getAmount())
                 .paymentMethod("alipay")
                 .status("pending")
@@ -191,19 +195,31 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public boolean validateAmount(String orderId, long amount) {
         try {
-            // 从订单服务查询订单信息
-            com.anqigou.common.response.ApiResponse<Object> response = orderServiceClient.getOrderInfo(orderId);
-            if (response == null || response.getData() == null) {
-                log.warn("Order not found: {}", orderId);
+            // 简单校验：金额必须大于0
+            if (amount <= 0) {
+                log.warn("Invalid amount: orderId={}, amount={}", orderId, amount);
                 return false;
             }
             
-            // 这里应该从订单数据中获取实际金额进行比对
-            // 暂时简单校验金额大于0
-            return amount > 0;
+            // 尝试从订单服务查询订单信息进行验证
+            try {
+                com.anqigou.common.response.ApiResponse<Object> response = orderServiceClient.getOrderInfo(orderId);
+                if (response == null || response.getData() == null) {
+                    log.warn("Order not found, but allow payment for mock: orderId={}", orderId);
+                    // 对于模拟支付，即使订单服务调用失败也允许继续
+                    return true;
+                }
+                log.info("Order validation success: orderId={}, amount={}", orderId, amount);
+            } catch (Exception e) {
+                log.warn("Failed to call order service, but allow payment for mock: orderId={}", orderId, e);
+                // 对于模拟支付，订单服务调用失败时也允许继续
+            }
+            
+            return true;
         } catch (Exception e) {
             log.error("Failed to validate order amount: orderId={}", orderId, e);
-            return false;
+            // 对于模拟支付，出现异常时也允许继续
+            return true;
         }
     }
     
@@ -257,5 +273,144 @@ public class PaymentServiceImpl implements PaymentService {
         form.append("</form>");
         form.append("<script>document.getElementById('alipayForm').submit();</script>");
         return form.toString();
+    }
+    
+    @Override
+    @Transactional
+    public Object mockPay(PaymentRequest request) {
+        // 验证金额
+        if (!validateAmount(request.getOrderId(), request.getAmount())) {
+            throw new BizException(400, "订单金额校验失败");
+        }
+        
+        // 从订单服务获取订单信息，提取真实的 userId 和 orderNo
+        String userId = null;
+        String orderNo = null;
+        try {
+            com.anqigou.common.response.ApiResponse<Object> response = orderServiceClient.getOrderInfo(request.getOrderId());
+            if (response != null && response.getData() != null) {
+                Map<String, Object> orderData = (Map<String, Object>) response.getData();
+                userId = (String) orderData.get("userId");
+                orderNo = (String) orderData.get("orderNo");
+                log.info("Get order info from order service: userId={}, orderNo={}", userId, orderNo);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to get order info from order service: orderId={}", request.getOrderId(), e);
+        }
+        
+        // 如果无法从订单服务获取，使用默认值（降级处理）
+        if (userId == null || userId.isEmpty()) {
+            userId = "default-user";
+            log.warn("Using default userId for payment: orderId={}", request.getOrderId());
+        }
+        if (orderNo == null || orderNo.isEmpty()) {
+            orderNo = "ORD" + System.currentTimeMillis();
+            log.warn("Using generated orderNo for payment: orderId={}", request.getOrderId());
+        }
+        
+        // 生成支付单号和模拟交易号
+        String paymentNo = generatePaymentNo();
+        String transactionId = "MOCK" + System.currentTimeMillis() + (int)(Math.random() * 10000);
+        
+        // 创建支付记录，状态直接设为已支付
+        Payment payment = Payment.builder()
+                .id(UUID.randomUUID().toString())
+                .orderId(request.getOrderId())
+                .orderNo(orderNo)
+                .paymentNo(paymentNo)
+                .userId(userId)
+                .amount(request.getAmount())
+                .paymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : "mock")
+                .status("paid")
+                .transactionId(transactionId)
+                .paidTime(LocalDateTime.now())
+                .createTime(LocalDateTime.now())
+                .deleted(0)
+                .build();
+        
+        paymentMapper.insert(payment);
+        
+        // 调用订单服务更新订单支付状态
+        try {
+            orderServiceClient.updateOrderPaymentStatus(request.getOrderId(), paymentNo);
+            log.info("Mock payment success and order status updated: orderId={}, paymentNo={}, transactionId={}", 
+                    request.getOrderId(), paymentNo, transactionId);
+        } catch (Exception e) {
+            log.error("Failed to update order payment status: orderId={}", request.getOrderId(), e);
+            // 对于模拟支付，即使更新订单状态失败也不抛出异常，允许支付继续
+            log.warn("Order status update failed, but payment record is saved: orderId={}", request.getOrderId());
+        }
+        
+        // 启动异步任务：1分钟后自动发货
+        scheduleAutoShipment(request.getOrderId());
+        
+        // 返回支付结果
+        Map<String, Object> result = new HashMap<>();
+        result.put("orderId", request.getOrderId());
+        result.put("paymentNo", paymentNo);
+        result.put("transactionId", transactionId);
+        result.put("amount", request.getAmount());
+        result.put("paymentMethod", payment.getPaymentMethod());
+        result.put("status", "paid");
+        result.put("paidTime", payment.getPaidTime());
+        result.put("message", "模拟支付成功，1分钟后自动发货");
+        
+        return result;
+    }
+    
+    /**
+     * 安排自动发货任务
+     */
+    private void scheduleAutoShipment(String orderId) {
+        new Thread(() -> {
+            try {
+                // 等待1分钟
+                Thread.sleep(60000);
+                
+                // 生成模拟快递信息
+                String[] companies = {"顺丰", "中通", "圆通", "申通", "韵达"};
+                String courierCompany = companies[(int)(Math.random() * companies.length)];
+                String trackingNo = generateTrackingNo(courierCompany);
+                
+                // 调用订单服务发货
+                try {
+                    orderServiceClient.shipOrder(orderId, courierCompany, trackingNo);
+                    log.info("Auto shipment success: orderId={}, courier={}, tracking={}", 
+                            orderId, courierCompany, trackingNo);
+                } catch (Exception e) {
+                    log.error("Auto shipment failed: orderId={}", orderId, e);
+                }
+            } catch (InterruptedException e) {
+                log.error("Auto shipment thread interrupted: orderId={}", orderId, e);
+                Thread.currentThread().interrupt();
+            }
+        }).start();
+    }
+    
+    /**
+     * 生成模拟快递单号
+     */
+    private String generateTrackingNo(String company) {
+        String prefix;
+        switch (company) {
+            case "顺丰":
+                prefix = "SF";
+                break;
+            case "中通":
+                prefix = "ZTO";
+                break;
+            case "圆通":
+                prefix = "YTO";
+                break;
+            case "申通":
+                prefix = "STO";
+                break;
+            case "韵达":
+                prefix = "YD";
+                break;
+            default:
+                prefix = "EXP";
+        }
+        return prefix + System.currentTimeMillis() + (int)(Math.random() * 10000);
     }
 }

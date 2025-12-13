@@ -22,6 +22,11 @@ public interface OrderService {
     Object getOrderDetail(String orderId, String userId);
     
     /**
+     * 根据订单ID获取订单（供内部服务调用）
+     */
+    com.anqigou.order.entity.Order getOrderById(String orderId);
+    
+    /**
      * 获取订单列表
      */
     Page<Object> getOrderList(String userId, int pageNum, int pageSize, String status);

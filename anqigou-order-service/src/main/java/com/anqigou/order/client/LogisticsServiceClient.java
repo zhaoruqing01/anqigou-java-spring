@@ -11,7 +11,7 @@ import com.anqigou.common.response.ApiResponse;
 /**
  * 物流服务 Feign 客户端
  */
-@FeignClient(name = "anqigou-logistics-service", url = "${feign.client.logistics.url:http://localhost:8084}")
+@FeignClient(name = "anqigou-logistics-service", url = "${feign.client.logistics.url:http://localhost:8085}")
 public interface LogisticsServiceClient {
     
     /**

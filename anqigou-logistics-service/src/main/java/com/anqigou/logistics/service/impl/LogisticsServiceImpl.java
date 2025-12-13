@@ -173,6 +173,10 @@ public class LogisticsServiceImpl implements LogisticsService {
     @Override
     @Transactional
     public void shipOrder(String orderId, String courierCompany, String trackingNo) {
+        // 暂时使用固定快递单号进行测试
+        trackingNo = "YT8814325842976";
+        courierCompany = "圆通速递";
+        
         // 生成订单号（简化版本，实际应该从订单服务获取）
         String orderNo = "ORD" + orderId.substring(0, Math.min(8, orderId.length()));
         

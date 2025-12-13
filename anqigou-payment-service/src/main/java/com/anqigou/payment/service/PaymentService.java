@@ -41,4 +41,9 @@ public interface PaymentService {
      * 金额校验
      */
     boolean validateAmount(String orderId, long amount);
+    
+    /**
+     * 模拟支付 - 直接完成支付
+     */
+    Object mockPay(PaymentRequest request);
 }

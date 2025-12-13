@@ -32,6 +32,22 @@ public class LogisticsController {
     private LogisticsService logisticsService;
     
     /**
+     * 发货（供订单服务调用）
+     */
+    @PostMapping("/ship")
+    public ApiResponse<Void> shipOrder(@RequestParam String orderId,
+                                       @RequestParam String courierCompany,
+                                       @RequestParam String trackingNo) {
+        try {
+            logisticsService.shipOrder(orderId, courierCompany, trackingNo);
+            return ApiResponse.success();
+        } catch (Exception e) {
+            log.error("Ship order failed: orderId={}", orderId, e);
+            return ApiResponse.failure(500, "发货失败: " + e.getMessage());
+        }
+    }
+    
+    /**
      * 获取物流详情
      */
     @GetMapping("/order/{orderId}")
