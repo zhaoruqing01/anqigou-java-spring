@@ -39,6 +39,10 @@ mybatis-plus:
 elasticsearch:
   host: localhost
   port: 9200
+  # 是否启用Elasticsearch搜索功能（默认false，需手动开启）
+  enabled: true
+  # 应用启动时是否自动初始化索引并同步数据（默认false）
+  auto-init: true
 
 server:
   port: 8082

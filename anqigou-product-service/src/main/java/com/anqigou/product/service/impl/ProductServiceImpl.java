@@ -1,15 +1,20 @@
 package com.anqigou.product.service.impl;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.anqigou.common.exception.BizException;
+import com.anqigou.common.util.ElasticsearchUtil;
+import com.anqigou.product.document.ProductDocument;
 import com.anqigou.product.dto.ProductDetailDTO;
 import com.anqigou.product.dto.ProductListItemDTO;
 import com.anqigou.product.dto.ProductSkuDTO;
@@ -34,18 +39,24 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ProductServiceImpl implements ProductService {
-    
+
     @Autowired
     private ProductMapper productMapper;
-    
+
     @Autowired
     private ProductSkuMapper productSkuMapper;
-    
+
     @Autowired
     private ProductCategoryMapper productCategoryMapper;
-    
+
     @Autowired
     private ProductReviewMapper productReviewMapper;
+
+    @Autowired
+    private ElasticsearchUtil elasticsearchUtil;
+
+    @Value("${elasticsearch.enabled:false}")
+    private boolean elasticsearchEnabled;
     
     @Override
     public ProductDetailDTO getProductDetail(String productId, String userId) {
@@ -111,16 +122,89 @@ public class ProductServiceImpl implements ProductService {
     }
     
     @Override
-    public Page<ProductListItemDTO> listProducts(int pageNum, int pageSize, String categoryId, 
+    public Page<ProductListItemDTO> listProducts(int pageNum, int pageSize, String categoryId,
                                                  String keyword, String sortBy) {
+        // 如果启用了Elasticsearch且有搜索关键词，优先使用ES搜索
+        if (elasticsearchEnabled && keyword != null && !keyword.isEmpty()) {
+            try {
+                return searchProductsByElasticsearch(pageNum, pageSize, categoryId, keyword, sortBy);
+            } catch (Exception e) {
+                log.error("Elasticsearch搜索失败，降级使用数据库查询: {}", e.getMessage());
+                // 降级到数据库查询
+            }
+        }
+
+        // 使用数据库查询（默认方式或降级方式）
+        return searchProductsByDatabase(pageNum, pageSize, categoryId, keyword, sortBy);
+    }
+
+    /**
+     * 使用Elasticsearch搜索商品
+     */
+    private Page<ProductListItemDTO> searchProductsByElasticsearch(int pageNum, int pageSize,
+                                                                    String categoryId, String keyword, String sortBy) {
+        // 确定排序字段和方向
+        String sortField = "createTime";
+        SortOrder sortOrder = SortOrder.DESC;
+
+        if ("price_asc".equals(sortBy)) {
+            sortField = "price";
+            sortOrder = SortOrder.ASC;
+        } else if ("price_desc".equals(sortBy)) {
+            sortField = "price";
+            sortOrder = SortOrder.DESC;
+        } else if ("hot".equals(sortBy)) {
+            sortField = "soldCount";
+            sortOrder = SortOrder.DESC;
+        }
+
+        // 定义搜索字段（商品名称、品牌、描述）
+        String[] searchFields = {"name", "brand", "description"};
+
+        // 计算分页参数
+        int from = (pageNum - 1) * pageSize;
+
+        // 执行ES高级搜索
+        List<Map<String, Object>> results = elasticsearchUtil.advancedSearch(
+                ProductDocument.getIndexName(),
+                keyword,
+                searchFields,
+                categoryId,
+                sortField,
+                sortOrder,
+                from,
+                pageSize
+        );
+
+        // 转换ES结果为DTO
+        List<ProductListItemDTO> dtoList = results.stream()
+                .map(this::convertMapToProductListItemDTO)
+                .collect(Collectors.toList());
+
+        // 统计总数（这里简化处理，实际应该单独查询总数）
+        long total = elasticsearchUtil.count(ProductDocument.getIndexName(), keyword, searchFields);
+
+        Page<ProductListItemDTO> page = new Page<>(pageNum, pageSize);
+        page.setTotal(total);
+        page.setRecords(dtoList);
+
+        log.info("Elasticsearch搜索成功: keyword={}, hits={}, total={}", keyword, dtoList.size(), total);
+        return page;
+    }
+
+    /**
+     * 使用数据库搜索商品（原有逻辑）
+     */
+    private Page<ProductListItemDTO> searchProductsByDatabase(int pageNum, int pageSize,
+                                                               String categoryId, String keyword, String sortBy) {
         QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("deleted", 0)
                 .eq("status", 1);
-        
+
         if (categoryId != null && !categoryId.isEmpty()) {
             queryWrapper.eq("category_id", categoryId);
         }
-        
+
         if (keyword != null && !keyword.isEmpty()) {
             // 模糊搜索：商品名称、品牌、描述
             queryWrapper.and(wrapper -> wrapper
@@ -131,7 +215,7 @@ public class ProductServiceImpl implements ProductService {
                     .like("description", keyword)
             );
         }
-        
+
         // 排序处理
         if ("price_asc".equals(sortBy)) {
             queryWrapper.orderByAsc("price");
@@ -142,10 +226,10 @@ public class ProductServiceImpl implements ProductService {
         } else {
             queryWrapper.orderByDesc("create_time");
         }
-        
+
         Page<Product> page = new Page<>(pageNum, pageSize);
         productMapper.selectPage(page, queryWrapper);
-        
+
         // 转换为DTO
         List<ProductListItemDTO> dtoList = page.getRecords().stream()
                 .map(product -> ProductListItemDTO.builder()
@@ -158,12 +242,27 @@ public class ProductServiceImpl implements ProductService {
                         .rating(product.getRating() != null ? product.getRating().doubleValue() : 0.0)
                         .build())
                 .collect(Collectors.toList());
-        
+
         Page<ProductListItemDTO> dtoPage = new Page<>(pageNum, pageSize);
         dtoPage.setTotal(page.getTotal());
         dtoPage.setRecords(dtoList);
-        
+
         return dtoPage;
+    }
+
+    /**
+     * 将ES返回的Map转换为ProductListItemDTO
+     */
+    private ProductListItemDTO convertMapToProductListItemDTO(Map<String, Object> source) {
+        return ProductListItemDTO.builder()
+                .id((String) source.get("id"))
+                .name((String) source.get("name"))
+                .price(source.get("price") != null ? ((Number) source.get("price")).longValue() : 0L)
+                .originalPrice(source.get("originalPrice") != null ? ((Number) source.get("originalPrice")).longValue() : 0L)
+                .mainImage((String) source.get("mainImage"))
+                .soldCount(source.get("soldCount") != null ? ((Number) source.get("soldCount")).intValue() : 0)
+                .rating(source.get("rating") != null ? ((Number) source.get("rating")).doubleValue() : 0.0)
+                .build();
     }
     
     @Override
