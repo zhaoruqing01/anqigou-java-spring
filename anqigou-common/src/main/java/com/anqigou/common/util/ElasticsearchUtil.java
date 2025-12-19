@@ -21,12 +21,12 @@ import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.unit.Fuzziness;
-import org.elasticsearch.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -177,12 +177,33 @@ public class ElasticsearchUtil {
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
             if (keyword != null && !keyword.isEmpty() && fields != null && fields.length > 0) {
-                // 使用multi_match查询实现多字段模糊匹配
+                // 使用BoolQuery组合多种查询策略，提高模糊匹配能力
                 BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-                boolQuery.must(QueryBuilders.multiMatchQuery(keyword, fields)
-                        .fuzziness(Fuzziness.AUTO)  // 自动模糊匹配
-                        .prefixLength(0)             // 前缀长度
-                        .maxExpansions(50));         // 最大扩展数
+                
+                // 策略1: 精确匹配（最高优先级）- boost 3.0
+                boolQuery.should(QueryBuilders.multiMatchQuery(keyword, fields)
+                        .boost(3.0f));
+                
+                // 策略2: 前缀匹配 - boost 2.0
+                boolQuery.should(QueryBuilders.multiMatchQuery(keyword, fields)
+                        .type(org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
+                        .boost(2.0f));
+                
+                // 策略3: 模糊匹配（允许2个字符编辑距离）- boost 1.5
+                boolQuery.should(QueryBuilders.multiMatchQuery(keyword, fields)
+                        .fuzziness(Fuzziness.TWO)    // 允许最多2个字符的编辑距离
+                        .prefixLength(0)              // 前缀长度为0，允许从第一个字符开始模糊
+                        .maxExpansions(100)           // 增加最大扩展数
+                        .boost(1.5f));
+                
+                // 策略4: 通配符匹配（支持部分匹配）- boost 1.0
+                for (String field : fields) {
+                    boolQuery.should(QueryBuilders.wildcardQuery(field, "*" + keyword + "*")
+                            .boost(1.0f));
+                }
+                
+                // 至少匹配一个条件
+                boolQuery.minimumShouldMatch(1);
 
                 sourceBuilder.query(boolQuery);
             }
@@ -207,7 +228,7 @@ public class ElasticsearchUtil {
     }
 
     /**
-     * 高级搜索 - 支持分类过滤、排序
+     * 高级搜索 - 支持分类过滤、排序、模糊匹配
      *
      * @param index 索引名称
      * @param keyword 搜索关键词
@@ -226,26 +247,50 @@ public class ElasticsearchUtil {
             SearchRequest searchRequest = new SearchRequest(index);
             SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
-            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            BoolQueryBuilder mainQuery = QueryBuilders.boolQuery();
 
-            // 关键词搜索
+            // 关键词搜索 - 使用多策略模糊匹配
             if (keyword != null && !keyword.isEmpty() && searchFields != null && searchFields.length > 0) {
-                boolQuery.must(QueryBuilders.multiMatchQuery(keyword, searchFields)
-                        .fuzziness(Fuzziness.AUTO)
-                        .prefixLength(0)
-                        .maxExpansions(50));
+                BoolQueryBuilder keywordQuery = QueryBuilders.boolQuery();
+                
+                // 策略1: 精确匹配（最高优先级）- boost 3.0
+                keywordQuery.should(QueryBuilders.multiMatchQuery(keyword, searchFields)
+                        .boost(3.0f));
+                
+                // 策略2: 前缀匹配 - boost 2.0
+                keywordQuery.should(QueryBuilders.multiMatchQuery(keyword, searchFields)
+                        .type(org.elasticsearch.index.query.MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
+                        .boost(2.0f));
+                
+                // 策略3: 模糊匹配（允许2个字符编辑距离）- boost 1.5
+                keywordQuery.should(QueryBuilders.multiMatchQuery(keyword, searchFields)
+                        .fuzziness(Fuzziness.TWO)    // 允许最多2个字符的编辑距离
+                        .prefixLength(0)              // 前缀长度为0，允许从第一个字符开始模糊
+                        .maxExpansions(100)           // 增加最大扩展数
+                        .boost(1.5f));
+                
+                // 策略4: 通配符匹配（支持部分匹配）- boost 1.0
+                for (String field : searchFields) {
+                    keywordQuery.should(QueryBuilders.wildcardQuery(field, "*" + keyword + "*")
+                            .boost(1.0f));
+                }
+                
+                // 至少匹配一个条件
+                keywordQuery.minimumShouldMatch(1);
+                
+                mainQuery.must(keywordQuery);
             }
 
             // 分类过滤
             if (categoryId != null && !categoryId.isEmpty()) {
-                boolQuery.filter(QueryBuilders.termQuery("categoryId", categoryId));
+                mainQuery.filter(QueryBuilders.termQuery("categoryId", categoryId));
             }
 
             // 只查询已上架商品
-            boolQuery.filter(QueryBuilders.termQuery("status", 1));
-            boolQuery.filter(QueryBuilders.termQuery("deleted", 0));
+            mainQuery.filter(QueryBuilders.termQuery("status", 1));
+            mainQuery.filter(QueryBuilders.termQuery("deleted", 0));
 
-            sourceBuilder.query(boolQuery);
+            sourceBuilder.query(mainQuery);
 
             // 排序
             if (sortField != null && !sortField.isEmpty()) {

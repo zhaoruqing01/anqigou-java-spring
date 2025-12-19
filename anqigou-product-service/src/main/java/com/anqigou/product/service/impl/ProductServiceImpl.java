@@ -1,6 +1,5 @@
 package com.anqigou.product.service.impl;
 
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -193,7 +192,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
-     * 使用数据库搜索商品（原有逻辑）
+     * 使用数据库搜索商品（原有逻辑，支持增强的模糊匹配）
      */
     private Page<ProductListItemDTO> searchProductsByDatabase(int pageNum, int pageSize,
                                                                String categoryId, String keyword, String sortBy) {
@@ -206,14 +205,25 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if (keyword != null && !keyword.isEmpty()) {
-            // 模糊搜索：商品名称、品牌、描述
-            queryWrapper.and(wrapper -> wrapper
-                    .like("name", keyword)
-                    .or()
-                    .like("brand", keyword)
-                    .or()
-                    .like("description", keyword)
-            );
+            // 增强的模糊搜索：支持每个字符的模糊匹配
+            // 将搜索词拆分成单个字符，构建更灵活的搜索条件
+            String fuzzyKeyword = keyword.trim();
+            
+            // 策略1: 完整词匹配（优先级最高）
+            queryWrapper.and(wrapper -> {
+                wrapper.like("name", fuzzyKeyword)
+                       .or().like("brand", fuzzyKeyword)
+                       .or().like("description", fuzzyKeyword);
+                
+                // 策略2: 拆分字符模糊匹配（支持 "水国" 匹配 "水果"）
+                // 为每个字符构建like条件
+                if (fuzzyKeyword.length() >= 2) {
+                    for (int i = 0; i < fuzzyKeyword.length(); i++) {
+                        String singleChar = String.valueOf(fuzzyKeyword.charAt(i));
+                        wrapper.or().like("name", singleChar);
+                    }
+                }
+            });
         }
 
         // 排序处理
