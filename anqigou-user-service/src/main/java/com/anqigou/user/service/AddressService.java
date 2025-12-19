@@ -20,6 +20,11 @@ public interface AddressService {
     AddressDTO getAddressDetail(String addressId, String userId);
     
     /**
+     * 获取地址详情（内部服务调用，不验证用户权限）
+     */
+    AddressDTO getAddressDetailInternal(String addressId);
+    
+    /**
      * 创建地址
      */
     AddressDTO createAddress(String userId, AddressDTO addressDTO);

@@ -80,12 +80,21 @@ public class LogisticsController {
      */
     @PostMapping("/{logisticsId}/evaluate")
     public ApiResponse<String> evaluateLogistics(@PathVariable String logisticsId,
-                                              @RequestParam Integer speedRating,
-                                              @RequestParam Integer serviceRating,
-                                              @RequestParam Integer qualityRating,
-                                              @RequestParam(required = false) String content,
-                                              @RequestParam(required = false) String images) {
-        logisticsService.evaluateLogistics(logisticsId, speedRating, serviceRating, qualityRating, content, images);
+                                              @RequestAttribute(required = false) String userId,
+                                              @org.springframework.web.bind.annotation.RequestBody com.anqigou.logistics.dto.LogisticsEvaluateRequest request) {
+        // 如果userId为空，使用默认值（用于测试）
+        String actualUserId = userId != null ? userId : "test-user";
+        
+        logisticsService.evaluateLogistics(
+            logisticsId, 
+            actualUserId, 
+            request.getSpeedRating(), 
+            request.getServiceRating(), 
+            request.getQualityRating(), 
+            request.getContent(), 
+            request.getImages(), 
+            request.getIsAnonymous()
+        );
         return ApiResponse.success("评价成功");
     }
 }

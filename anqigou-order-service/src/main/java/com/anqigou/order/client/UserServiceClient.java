@@ -10,12 +10,12 @@ import com.anqigou.order.dto.AddressInfoDTO;
 /**
  * 用户服务Feign客户端
  */
-@FeignClient(name = "anqigou-user-service", path = "/api/user")
+@FeignClient(name = "anqigou-user-service", path = "/user")
 public interface UserServiceClient {
     
     /**
-     * 获取地址详情
+     * 获取地址详情（内部服务调用）
      */
-    @GetMapping("/address/{addressId}")
+    @GetMapping("/address/{addressId}/internal")
     ApiResponse<AddressInfoDTO> getAddressDetail(@PathVariable("addressId") String addressId);
 }

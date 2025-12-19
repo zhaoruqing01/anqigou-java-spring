@@ -81,28 +81,22 @@ public class OrderServiceImpl implements OrderService {
             ApiResponse<AddressInfoDTO> addressResponse = userServiceClient.getAddressDetail(request.getAddressId());
             if (addressResponse != null && addressResponse.getData() != null) {
                 address = addressResponse.getData();
+                log.info("成功获取收货地址: addressId={}, receiverName={}", request.getAddressId(), address.getReceiverName());
             }
         } catch (Exception e) {
-            log.error("调用用户服务失败: {}", e.getMessage());
-            // 降级处理：为了方便测试，如果调用失败，使用Mock数据
-            // 在生产环境中应抛出异常或使用更完善的熔断机制
+            log.error("调用用户服务获取地址失败: addressId={}, error={}", request.getAddressId(), e.getMessage());
         }
 
         if (address == null) {
-            // throw new BizException(404, "收货地址不存在或用户服务不可用");
-            log.warn("使用Mock地址信息继续下单流程");
-            address = new AddressInfoDTO();
-            address.setReceiverName("Mock User");
-            address.setReceiverPhone("13800138000");
-            address.setProvince("MockProv");
-            address.setCity("MockCity");
-            address.setDistrict("MockDist");
-            address.setDetailAddress("Mock Detail Address");
+            throw new BizException(404, "收货地址不存在，请先添加收货地址");
         }
         
         String receiverName = address.getReceiverName();
         String receiverPhone = address.getReceiverPhone();
         String receiverAddress = address.getFullAddress();
+        
+        log.info("订单收货地址信息: receiverName={}, receiverPhone={}, receiverAddress={}", 
+                receiverName, receiverPhone, receiverAddress);
         
         // 批量查询商品SKU信息
         List<String> skuIds = request.getItems().stream()

@@ -58,6 +58,16 @@ public class AddressController {
     }
     
     /**
+     * 获取地址详情（内部服务调用专用）
+     * 不需要验证userId，供订单服务等内部服务调用
+     */
+    @GetMapping("/{addressId}/internal")
+    public ApiResponse<AddressDTO> getAddressDetailInternal(@PathVariable String addressId) {
+        AddressDTO address = addressService.getAddressDetailInternal(addressId);
+        return ApiResponse.success(address);
+    }
+    
+    /**
      * 创建地址
      */
     @PostMapping

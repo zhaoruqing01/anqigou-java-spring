@@ -341,7 +341,7 @@ public class PaymentServiceImpl implements PaymentService {
             log.warn("Order status update failed, but payment record is saved: orderId={}", request.getOrderId());
         }
         
-        // 启动异步任务：1分钟后自动发货
+        // 启动异步任务：30秒后自动发货
         scheduleAutoShipment(request.getOrderId());
         
         // 返回支付结果
@@ -353,7 +353,7 @@ public class PaymentServiceImpl implements PaymentService {
         result.put("paymentMethod", payment.getPaymentMethod());
         result.put("status", "paid");
         result.put("paidTime", payment.getPaidTime());
-        result.put("message", "模拟支付成功，1分钟后自动发货");
+        result.put("message", "模拟支付成功，30秒后自动发货");
         
         return result;
     }
@@ -364,8 +364,8 @@ public class PaymentServiceImpl implements PaymentService {
     private void scheduleAutoShipment(String orderId) {
         new Thread(() -> {
             try {
-                // 等待1分钟
-                Thread.sleep(60000);
+                // 等待30秒
+                Thread.sleep(30000);
                 
                 // 生成模拟快递信息
                 String[] companies = {"顺丰", "中通", "圆通", "申通", "韵达"};

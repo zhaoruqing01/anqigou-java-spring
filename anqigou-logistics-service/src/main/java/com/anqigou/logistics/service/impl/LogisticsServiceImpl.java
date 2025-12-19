@@ -21,6 +21,7 @@ import com.anqigou.logistics.dto.LogisticsTrackDTO;
 import com.anqigou.logistics.entity.Logistics;
 import com.anqigou.logistics.entity.LogisticsEvaluation;
 import com.anqigou.logistics.entity.LogisticsTrack;
+import com.anqigou.logistics.mapper.LogisticsEvaluationMapper;
 import com.anqigou.logistics.mapper.LogisticsMapper;
 import com.anqigou.logistics.mapper.LogisticsTrackMapper;
 import com.anqigou.logistics.service.LogisticsService;
@@ -41,6 +42,9 @@ public class LogisticsServiceImpl implements LogisticsService {
     
     @Autowired
     private LogisticsTrackMapper logisticsTrackMapper;
+    
+    @Autowired
+    private LogisticsEvaluationMapper logisticsEvaluationMapper;
     
     @Autowired
     private Kuaidi100Client kuaidi100Client;
@@ -194,10 +198,43 @@ public class LogisticsServiceImpl implements LogisticsService {
         
         logisticsMapper.insert(logistics);
         
-        // 添加初始轨迹
-        addLogisticsTrack(logistics.getId(), trackingNo, "", "", "商家已发货");
+        // 创建完整的物流轨迹（模拟真实物流过程）
+        createInitialTracks(logistics.getId(), trackingNo);
         
         log.info("物流信息已创建: orderId={}, orderNo={}, trackingNo={}", orderId, orderNo, trackingNo);
+    }
+    
+    /**
+     * 创建初始物流轨迹
+     */
+    private void createInitialTracks(String logisticsId, String trackingNo) {
+        LocalDateTime now = LocalDateTime.now();
+        
+        // 创建多条物流轨迹，模拟真实物流过程
+        List<Map<String, Object>> trackData = new ArrayList<>();
+        trackData.add(Map.of("time", now.minusMinutes(5), "city", "深圳市", "location", "深圳仓库", "desc", "【深圳市】快递员正在派送中，请保持电话畅通", "sortOrder", 5));
+        trackData.add(Map.of("time", now.minusHours(2), "city", "深圳市南山区", "location", "南山配送中心", "desc", "【深圳市南山区】快递已到达南山区配送中心", "sortOrder", 4));
+        trackData.add(Map.of("time", now.minusHours(8), "city", "广州市", "location", "广州转运中心", "desc", "【广州市】快递已离开广州转运中心，发往深圳", "sortOrder", 3));
+        trackData.add(Map.of("time", now.minusHours(14), "city", "广州市", "location", "广州转运中心", "desc", "【广州市】快递已到达广州转运中心", "sortOrder", 2));
+        trackData.add(Map.of("time", now.minusHours(20), "city", "上海市", "location", "上海发货仓", "desc", "【上海市】商家已发货，等待快递员上门取件", "sortOrder", 1));
+        
+        for (Map<String, Object> data : trackData) {
+            LogisticsTrack track = LogisticsTrack.builder()
+                    .id(UUID.randomUUID().toString())
+                    .logisticsId(logisticsId)
+                    .trackingNo(trackingNo)
+                    .operateTime((LocalDateTime) data.get("time"))
+                    .operateCity((String) data.get("city"))
+                    .operateLocation((String) data.get("location"))
+                    .description((String) data.get("desc"))
+                    .sortOrder((Integer) data.get("sortOrder"))
+                    .deleted(0)
+                    .build();
+            
+            logisticsTrackMapper.insert(track);
+        }
+        
+        log.info("创建了{}条物流轨迹: logisticsId={}", trackData.size(), logisticsId);
     }
     
     @Override
@@ -222,11 +259,28 @@ public class LogisticsServiceImpl implements LogisticsService {
     
     @Override
     @Transactional
-    public void evaluateLogistics(String logisticsId, Integer speedRating, Integer serviceRating, 
-                                  Integer qualityRating, String content, String images) {
+    public void evaluateLogistics(String logisticsId, String userId, Integer speedRating, Integer serviceRating, 
+                                  Integer qualityRating, String content, String images, Integer isAnonymous) {
         Logistics logistics = logisticsMapper.selectById(logisticsId);
         if (logistics == null) {
             throw new BizException(404, "物流信息不存在");
+        }
+        
+        // 检查是否已经评价过
+        QueryWrapper<LogisticsEvaluation> checkWrapper = new QueryWrapper<>();
+        checkWrapper.eq("logistics_id", logisticsId)
+                .eq("user_id", userId)
+                .eq("deleted", 0);
+        Long count = logisticsEvaluationMapper.selectCount(checkWrapper);
+        if (count > 0) {
+            throw new BizException(400, "您已评价过该物流，不能重复评价");
+        }
+        
+        // 验证评分范围
+        if (speedRating < 1 || speedRating > 5 || 
+            serviceRating < 1 || serviceRating > 5 || 
+            qualityRating < 1 || qualityRating > 5) {
+            throw new BizException(400, "评分必须在1-5星之间");
         }
         
         // 计算综合评分
@@ -237,22 +291,22 @@ public class LogisticsServiceImpl implements LogisticsService {
                 .id(UUID.randomUUID().toString())
                 .logisticsId(logisticsId)
                 .orderId(logistics.getOrderId())
-                .userId("") // TODO: 从上下文获取用户ID
+                .userId(userId)
                 .speedRating(speedRating)
                 .serviceRating(serviceRating)
                 .qualityRating(qualityRating)
                 .overallRating(overallRating)
                 .content(content)
                 .images(images)
-                .isAnonymous(0)
+                .isAnonymous(isAnonymous != null ? isAnonymous : 0)
                 .createTime(LocalDateTime.now())
                 .deleted(0)
                 .build();
         
-        // TODO: 需要注入LogisticsEvaluationMapper
-        // logisticsEvaluationMapper.insert(evaluation);
+        logisticsEvaluationMapper.insert(evaluation);
         
-        log.info("已保存物流评价，订单号：{}，综合评分：{}", logistics.getOrderNo(), overallRating);
+        log.info("物流评价保存成功: logisticsId={}, orderId={}, userId={}, overallRating={}", 
+                logisticsId, logistics.getOrderId(), userId, overallRating);
     }
     
     /**

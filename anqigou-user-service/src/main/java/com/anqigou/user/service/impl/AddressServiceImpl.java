@@ -40,6 +40,13 @@ public class AddressServiceImpl implements AddressService {
     }
     
     @Override
+    public AddressDTO getAddressDetailInternal(String addressId) {
+        // 内部服务调用，不验证userId
+        Address address = addressMapper.selectById(addressId);
+        return address != null ? convertToDTO(address) : null;
+    }
+    
+    @Override
     public AddressDTO createAddress(String userId, AddressDTO addressDTO) {
         Address address = new Address();
         BeanUtils.copyProperties(addressDTO, address);

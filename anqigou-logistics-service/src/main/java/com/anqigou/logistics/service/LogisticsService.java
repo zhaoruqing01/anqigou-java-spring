@@ -1,9 +1,9 @@
 package com.anqigou.logistics.service;
 
+import java.util.List;
+
 import com.anqigou.logistics.dto.LogisticsDetailDTO;
 import com.anqigou.logistics.dto.LogisticsTrackDTO;
-
-import java.util.List;
 
 /**
  * 物流服务接口
@@ -44,6 +44,6 @@ public interface LogisticsService {
     /**
      * 评价物流
      */
-    void evaluateLogistics(String logisticsId, Integer speedRating, Integer serviceRating, 
-                           Integer qualityRating, String content, String images);
+    void evaluateLogistics(String logisticsId, String userId, Integer speedRating, Integer serviceRating, 
+                           Integer qualityRating, String content, String images, Integer isAnonymous);
 }
