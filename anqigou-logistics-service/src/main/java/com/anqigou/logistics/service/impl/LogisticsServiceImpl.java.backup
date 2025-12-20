@@ -2,11 +2,9 @@ package com.anqigou.logistics.service.impl;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +15,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.anqigou.common.constant.AppConstants;
 import com.anqigou.common.exception.BizException;
-import com.anqigou.common.response.ApiResponse;
 import com.anqigou.common.util.StringUtil;
-import com.anqigou.logistics.client.OrderServiceClient;
 import com.anqigou.logistics.dto.LogisticsDetailDTO;
 import com.anqigou.logistics.dto.LogisticsTrackDTO;
-import com.anqigou.logistics.dto.OrderInfoDTO;
 import com.anqigou.logistics.entity.Logistics;
 import com.anqigou.logistics.entity.LogisticsEvaluation;
 import com.anqigou.logistics.entity.LogisticsTrack;
@@ -54,39 +49,57 @@ public class LogisticsServiceImpl implements LogisticsService {
     @Autowired
     private Kuaidi100Client kuaidi100Client;
     
-    @Autowired
-    private OrderServiceClient orderServiceClient;
-    
-    // 快递公司列表，用于随机选择
-    private static final List<String> COURIER_COMPANIES = List.of("顺丰速递", "圆通速递", "中通快递", "申通快递", "韵达快递");
-    
-    // 发件城市列表，用于随机生成发件地址
-    private static final List<String> SENDER_CITIES = List.of(
-        "广东省深圳市", "上海市", "北京市", "浙江省杭州市", "江苏省南京市",
-        "四川省成都市", "湖北省武汉市", "陕西省西安市", "山东省济南市", "广东省广州市"
-    );
-    
-    // 随机生成器
-    private static final Random RANDOM = new Random();
-    
     @Override
     public LogisticsDetailDTO getLogisticsDetail(String orderId, String userId) {
         Logistics logistics = null;
+        
+        // 固定物流ID，使用数据库中实际存在的物流ID
+        final String FIXED_LOGISTICS_ID = "d0ede6eb-67e4-4361-a64e-6545cf6c2920";
         
         // 先尝试根据订单ID查询
         QueryWrapper<Logistics> orderQueryWrapper = new QueryWrapper<>();
         orderQueryWrapper.eq("order_id", orderId);
         logistics = logisticsMapper.selectOne(orderQueryWrapper);
         
-        // 如果没有找到，动态生成物流信息
+        // 如果没有找到，使用固定的物流ID查询
         if (logistics == null) {
-            log.info("未找到物流信息，动态生成: orderId={}", orderId);
-            logistics = generateDynamicLogistics(orderId, userId);
+            logistics = logisticsMapper.selectById(FIXED_LOGISTICS_ID);
         }
         
-        // 确保物流信息不为空
+        // 如果还是没有找到，自动创建固定物流
         if (logistics == null) {
-            throw new BizException(500, "生成物流信息失败");
+            String trackingNo = "YT8814325842976";
+            String courierCompany = "圆通速递";
+            
+            // 生成订单号（简化版本，实际应该从订单服务获取）
+            String orderNo = "ORD" + orderId.substring(0, Math.min(8, orderId.length()));
+            
+            logistics = Logistics.builder()
+                    .id(FIXED_LOGISTICS_ID)
+                    .orderId(orderId)
+                    .orderNo(orderNo)
+                    .courierCompany(courierCompany)
+                    .trackingNo(trackingNo)
+                    // 发件人信息
+                    .senderProvince("广东省")
+                    .senderCity("深圳市")
+                    .senderAddress("南山区粤海街道科技园A栋101室")
+                    // 收件人信息
+                    .receiverName("测试用户")
+                    .receiverPhone("13800138000")
+                    .receiverProvince("上海市")
+                    .receiverCity("上海市")
+                    .receiverAddress("浦东新区陆家嘴街道世纪大道100号B栋501室")
+                    // 物流状态
+                    .status(AppConstants.LogisticsStatus.SIGNED)
+                    .shippedTime(LocalDateTime.parse("2025-12-20 08:00:15", java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .signedTime(LocalDateTime.parse("2025-12-21 12:05:28", java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .lastUpdateTime(LocalDateTime.now())
+                    .deleted(0)
+                    .build();
+            
+            logisticsMapper.insert(logistics);
+            log.info("自动创建了固定物流信息: orderId={}, orderNo={}, trackingNo={}", orderId, orderNo, trackingNo);
         }
         
         // 获取轨迹
@@ -98,22 +111,13 @@ public class LogisticsServiceImpl implements LogisticsService {
                 .orderByDesc("operate_time");
         List<LogisticsTrack> localTracks = logisticsTrackMapper.selectList(trackWrapper);
         
-        // 如果没有轨迹，生成动态轨迹
+        // 如果没有轨迹，生成模拟轨迹
         if (localTracks == null || localTracks.isEmpty()) {
-            log.info("未找到轨迹，生成动态轨迹: logisticsId={}", logistics.getId());
-            createDynamicTracks(logistics);
-            // 重新查询轨迹
+            createInitialTracks(logistics.getId(), logistics.getTrackingNo());
             localTracks = logisticsTrackMapper.selectList(trackWrapper);
-            // 如果还是没有轨迹，直接生成模拟轨迹
-            if (localTracks == null || localTracks.isEmpty()) {
-                log.warn("生成动态轨迹失败，使用模拟轨迹: logisticsId={}", logistics.getId());
-                tracks = generateMockTracks();
-            } else {
-                tracks = convertTracks(localTracks);
-            }
-        } else {
-            tracks = convertTracks(localTracks);
         }
+        
+        tracks = convertTracks(localTracks);
         
         // 转换为 DTO
         LogisticsDetailDTO dto = LogisticsDetailDTO.builder()
@@ -133,7 +137,6 @@ public class LogisticsServiceImpl implements LogisticsService {
                 .hasEvaluated(false) // TODO: 检查是否已评价
                 .build();
         
-        log.info("返回物流详情: orderId={}, logisticsId={}, trackCount={}", orderId, logistics.getId(), tracks.size());
         return dto;
     }
     
@@ -198,97 +201,50 @@ public class LogisticsServiceImpl implements LogisticsService {
     @Override
     @Transactional
     public void shipOrder(String orderId, String courierCompany, String trackingNo) {
-        // 先尝试根据订单ID查询
-        QueryWrapper<Logistics> orderQueryWrapper = new QueryWrapper<>();
-        orderQueryWrapper.eq("order_id", orderId);
-        Logistics existingLogistics = logisticsMapper.selectOne(orderQueryWrapper);
+        // 使用固定物流ID，使用数据库中实际存在的物流ID
+        final String FIXED_LOGISTICS_ID = "d0ede6eb-67e4-4361-a64e-6545cf6c2920";
         
-        if (existingLogistics != null) {
-            // 如果已经存在，更新物流信息
-            existingLogistics.setCourierCompany(courierCompany);
-            existingLogistics.setTrackingNo(trackingNo);
-            existingLogistics.setStatus(AppConstants.LogisticsStatus.SHIPPED);
-            existingLogistics.setShippedTime(LocalDateTime.now());
-            existingLogistics.setLastUpdateTime(LocalDateTime.now());
-            logisticsMapper.updateById(existingLogistics);
-            log.info("已更新物流信息: orderId={}, courierCompany={}, trackingNo={}", 
-                    orderId, courierCompany, trackingNo);
-        } else {
-            // 如果不存在，生成新的物流信息
-            // 生成唯一的物流ID
-            String logisticsId = UUID.randomUUID().toString();
-            
-            // 如果没有提供快递公司和单号，生成随机的
-            if (courierCompany == null || courierCompany.isEmpty()) {
-                courierCompany = COURIER_COMPANIES.get(RANDOM.nextInt(COURIER_COMPANIES.size()));
-            }
-            
-            if (trackingNo == null || trackingNo.isEmpty()) {
-                trackingNo = generateTrackingNo(courierCompany);
-            }
+        // 检查固定物流是否已经存在
+        Logistics existingLogistics = logisticsMapper.selectById(FIXED_LOGISTICS_ID);
+        if (existingLogistics == null) {
+            // 如果不存在，创建固定物流
+            trackingNo = "SF1234567890";
+            courierCompany = "顺丰速递";
             
             // 生成订单号（简化版本，实际应该从订单服务获取）
             String orderNo = "ORD" + orderId.substring(0, Math.min(8, orderId.length()));
             
-            // 随机生成发件人地址
-            String senderCity = SENDER_CITIES.get(RANDOM.nextInt(SENDER_CITIES.size()));
-            String[] senderCityParts = senderCity.split("\\s*");
-            String senderProvince = senderCityParts[0];
-            
-            // 随机生成发件人详细地址
-            String[] senderAddresses = {
-                "科技园A栋101室", "工业园区B区202号", "商业区C座303室", 
-                "物流园D区404号", "电商产业园E栋505室"
-            };
-            String senderAddress = senderAddresses[RANDOM.nextInt(senderAddresses.length)];
-            
-            // 模拟收件人信息（实际应该从订单服务获取真实信息）
-            String receiverName = "测试用户";
-            String receiverPhone = "13800138000";
-            String receiverProvince = "上海市";
-            String receiverCity = "上海市";
-            String receiverAddress = "浦东新区陆家嘴街道世纪大道100号B栋501室";
-            
-            // 创建物流信息
             Logistics logistics = Logistics.builder()
-                    .id(logisticsId)
+                    .id(FIXED_LOGISTICS_ID)
                     .orderId(orderId)
                     .orderNo(orderNo)
                     .courierCompany(courierCompany)
                     .trackingNo(trackingNo)
-                    // 发件人信息
-                    .senderProvince(senderProvince)
-                    .senderCity(senderCity)
-                    .senderAddress(senderAddress)
-                    // 收件人信息
-                    .receiverName(receiverName)
-                    .receiverPhone(receiverPhone)
-                    .receiverProvince(receiverProvince)
-                    .receiverCity(receiverCity)
-                    .receiverAddress(receiverAddress)
-                    // 物流状态
-                    .status(AppConstants.LogisticsStatus.SHIPPED)
-                    .shippedTime(LocalDateTime.now())
+                    .status(AppConstants.LogisticsStatus.SIGNED)
+                    .shippedTime(LocalDateTime.parse("2025-12-20 08:00:15", java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .signedTime(LocalDateTime.parse("2025-12-21 08:50:28", java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .lastUpdateTime(LocalDateTime.now())
                     .deleted(0)
                     .build();
             
             logisticsMapper.insert(logistics);
             
-            // 生成初始物流轨迹
-            createDynamicTracks(logistics);
+            log.info("固定物流信息已创建: orderId={}, orderNo={}, trackingNo={}", orderId, orderNo, trackingNo);
+        } else {
+            // 如果已经存在，更新订单ID
+            existingLogistics.setOrderId(orderId);
+            existingLogistics.setLastUpdateTime(LocalDateTime.now());
+            logisticsMapper.updateById(existingLogistics);
             
-            log.info("已创建新的物流信息: orderId={}, logisticsId={}, courierCompany={}, trackingNo={}", 
-                    orderId, logisticsId, courierCompany, trackingNo);
+            log.info("固定物流信息已更新: orderId={}, trackingNo={}", orderId, existingLogistics.getTrackingNo());
         }
     }
     
     /**
      * 创建初始物流轨迹
      */
-    private void createInitialTracks(String logisticsId, String trackingNo, String senderCity, String senderAddress, 
-                                     String receiverName, String receiverPhone, String fullReceiverAddress) {
-        // 创建详细的物流轨迹，按照真实地址生成
+    private void createInitialTracks(String logisticsId, String trackingNo) {
+        // 创建详细的物流轨迹，按照用户提供的SQL数据
         List<LogisticsTrack> tracks = new ArrayList<>();
         
         // 节点1：订单创建（最早节点，sort_order=25）
@@ -296,10 +252,10 @@ public class LogisticsServiceImpl implements LogisticsService {
                 .id(UUID.randomUUID().toString())
                 .logisticsId(logisticsId)
                 .trackingNo(trackingNo)
-                .operateTime(LocalDateTime.now().minusDays(2).minusHours(12))
-                .operateCity(senderCity.split("\\s*")[0])
-                .operateLocation(senderCity + "系统后台")
-                .description("用户下单成功，运单号" + trackingNo + "已生成，包裹类型：电子配件，重量1.2kg，保价金额：5000元，发货地址：" + senderCity + " " + senderAddress + "，收货地址：" + fullReceiverAddress)
+                .operateTime(LocalDateTime.parse("2025-12-20 08:00:15", java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .operateCity("深圳市")
+                .operateLocation("顺丰系统后台")
+                .description("用户下单成功，运单号" + trackingNo + "已生成，包裹类型：电子配件，重量1.2kg，保价金额：5000元，发货地址：广东省深圳市南山区粤海街道科技园A栋101室，收货地址：上海市浦东新区陆家嘴街道世纪大道100号B栋501室")
                 .courierName(null)
                 .courierPhone(null)
                 .sortOrder(25)
@@ -860,311 +816,6 @@ public class LogisticsServiceImpl implements LogisticsService {
         }
         
         return tracks;
-    }
-    
-    /**
-     * 动态生成物流信息
-     * @param orderId 订单ID
-     * @param userId 用户ID
-     * @return 生成的物流信息
-     */
-    private Logistics generateDynamicLogistics(String orderId, String userId) {
-        // 生成唯一的物流ID
-        String logisticsId = UUID.randomUUID().toString();
-        
-        // 随机选择快递公司
-        String courierCompany = COURIER_COMPANIES.get(RANDOM.nextInt(COURIER_COMPANIES.size()));
-        
-        // 生成唯一的物流单号
-        String trackingNo = generateTrackingNo(courierCompany);
-        
-        // 生成订单号（简化版本，实际应该从订单服务获取）
-        String orderNo = "ORD" + orderId.substring(0, Math.min(8, orderId.length()));
-        
-        // 随机生成发件人地址
-        String senderCity = SENDER_CITIES.get(RANDOM.nextInt(SENDER_CITIES.size()));
-        String[] senderCityParts = senderCity.split("\\s*");
-        String senderProvince = senderCityParts[0];
-        
-        // 随机生成发件人详细地址
-        String[] senderAddresses = {
-            "科技园A栋101室", "工业园区B区202号", "商业区C座303室", 
-            "物流园D区404号", "电商产业园E栋505室"
-        };
-        String senderAddress = senderAddresses[RANDOM.nextInt(senderAddresses.length)];
-        
-        // 从订单服务获取真实收件人信息
-        String receiverName = "测试用户";
-        String receiverPhone = "13800138000";
-        String receiverProvince = "上海市";
-        String receiverCity = "上海市";
-        String receiverAddress = "浦东新区陆家嘴街道世纪大道100号B栋501室";
-        
-        try {
-            // 调用订单服务获取真实订单信息
-            log.info("开始调用订单服务获取订单信息: orderId={}", orderId);
-            ApiResponse<OrderInfoDTO> orderResponse = orderServiceClient.getOrderInfo(orderId);
-            log.info("订单服务返回结果: code={}, message={}, data={}", 
-                    orderResponse.getCode(), orderResponse.getMessage(), orderResponse.getData());
-            
-            if (orderResponse.getCode() == 0 && orderResponse.getData() != null) {
-                OrderInfoDTO orderInfo = orderResponse.getData();
-                receiverName = orderInfo.getReceiverName();
-                receiverPhone = orderInfo.getReceiverPhone();
-                receiverProvince = orderInfo.getReceiverProvince();
-                receiverCity = orderInfo.getReceiverCity();
-                receiverAddress = orderInfo.getFullReceiverAddress();
-                log.info("从订单服务获取到真实收件人信息: orderId={}, receiverName={}, receiverPhone={}, receiverProvince={}, receiverCity={}, receiverAddress={}", 
-                        orderId, receiverName, receiverPhone, receiverProvince, receiverCity, receiverAddress);
-            } else {
-                log.warn("订单服务返回错误: code={}, message={}", orderResponse.getCode(), orderResponse.getMessage());
-            }
-        } catch (Exception e) {
-            log.error("调用订单服务失败，使用默认收件人信息: orderId={}, error={}", orderId, e.getMessage(), e);
-        }
-        
-        // 随机选择物流状态（70%已签收，20%派送中，10%运输中）
-        String[] statuses = {"signed", "signed", "signed", "signed", "signed", "signed", "signed", 
-                           "delivering", "delivering", "transit"};
-        String status = statuses[RANDOM.nextInt(statuses.length)];
-        
-        // 生成发货时间和签收时间
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime shippedTime = now.minusDays(RANDOM.nextInt(5) + 1); // 1-5天前发货
-        LocalDateTime signedTime = null;
-        
-        if ("signed".equals(status)) {
-            signedTime = shippedTime.plusDays(RANDOM.nextInt(3) + 1); // 发货后1-3天签收
-        }
-        
-        // 构建物流信息
-        Logistics logistics = Logistics.builder()
-                .id(logisticsId)
-                .orderId(orderId)
-                .orderNo(orderNo)
-                .courierCompany(courierCompany)
-                .trackingNo(trackingNo)
-                // 发件人信息
-                .senderProvince(senderProvince)
-                .senderCity(senderCity)
-                .senderAddress(senderAddress)
-                // 收件人信息
-                .receiverName(receiverName)
-                .receiverPhone(receiverPhone)
-                .receiverProvince(receiverProvince)
-                .receiverCity(receiverCity)
-                .receiverAddress(receiverAddress)
-                // 物流状态
-                .status(status)
-                .shippedTime(shippedTime)
-                .signedTime(signedTime)
-                .lastUpdateTime(now)
-                .deleted(0)
-                .build();
-        
-        // 保存到数据库
-        logisticsMapper.insert(logistics);
-        log.info("动态生成了物流信息: orderId={}, logisticsId={}, courierCompany={}, trackingNo={}, status={}", 
-                orderId, logisticsId, courierCompany, trackingNo, status);
-        
-        return logistics;
-    }
-    
-    /**
-     * 生成唯一的物流单号
-     * @param courierCompany 快递公司
-     * @return 物流单号
-     */
-    private String generateTrackingNo(String courierCompany) {
-        // 根据不同快递公司生成不同格式的单号
-        String prefix = "SF";
-        if (courierCompany.contains("圆通")) {
-            prefix = "YT";
-        } else if (courierCompany.contains("中通")) {
-            prefix = "ZT";
-        } else if (courierCompany.contains("申通")) {
-            prefix = "ST";
-        } else if (courierCompany.contains("韵达")) {
-            prefix = "YD";
-        }
-        
-        // 生成12位数字
-        String numbers = String.format("%012d", RANDOM.nextInt(1000000000));
-        
-        return prefix + numbers;
-    }
-    
-    /**
-     * 生成动态物流轨迹
-     * @param logistics 物流信息
-     */
-    private void createDynamicTracks(Logistics logistics) {
-        // 使用修改后的createInitialTracks方法生成完整详细的轨迹，传入真实地址
-        String fullReceiverAddress = logistics.getReceiverProvince() + logistics.getReceiverCity() + logistics.getReceiverAddress();
-        createInitialTracks(logistics.getId(), logistics.getTrackingNo(), 
-                           logistics.getSenderCity(), logistics.getSenderAddress(),
-                           logistics.getReceiverName(), logistics.getReceiverPhone(),
-                           fullReceiverAddress);
-    }
-    
-    /**
-     * 创建完整的物流轨迹（已签收）
-     * @param tracks 轨迹列表
-     * @param logistics 物流信息
-     * @param shippedTime 发货时间
-     * @param signedTime 签收时间
-     */
-    private void createFullTracks(List<LogisticsTrack> tracks, Logistics logistics, 
-                                 LocalDateTime shippedTime, LocalDateTime signedTime) {
-        String logisticsId = logistics.getId();
-        String trackingNo = logistics.getTrackingNo();
-        String courierCompany = logistics.getCourierCompany();
-        
-        // 计算时间间隔
-        long daysBetween = ChronoUnit.DAYS.between(shippedTime, signedTime);
-        LocalDateTime currentTime = shippedTime;
-        int sortOrder = 25;
-        
-        // 节点1：订单创建
-        tracks.add(createTrack(logisticsId, trackingNo, currentTime.minusHours(1), 
-                             logistics.getSenderCity(), "系统后台", 
-                             "用户下单成功，运单号" + trackingNo + "已生成，包裹类型：电子配件，重量1.2kg", 
-                             null, null, sortOrder--));
-        
-        // 节点2：待揽收
-        currentTime = currentTime.plusMinutes(30);
-        tracks.add(createTrack(logisticsId, trackingNo, currentTime, 
-                             logistics.getSenderCity(), logistics.getSenderCity() + "片区", 
-                             courierCompany + "客服已接单，分配揽收任务至" + logistics.getSenderCity() + "配送站", 
-                             "客服" + (char)('A' + RANDOM.nextInt(26)), 
-                             "1300013000" + RANDOM.nextInt(10), sortOrder--));
-        
-        // 节点3-25：生成中间节点
-        // 这里简化处理，生成固定数量的中间节点
-        for (int i = 0; i < 20; i++) {
-            // 随机选择城市
-            String city = SENDER_CITIES.get(RANDOM.nextInt(SENDER_CITIES.size()));
-            
-            // 随机增加时间
-            currentTime = currentTime.plusHours(RANDOM.nextInt(12) + 1);
-            
-            // 随机选择轨迹类型
-            String[] trackTypes = {"到达", "离开", "分拣"};
-            String trackType = trackTypes[RANDOM.nextInt(trackTypes.length)];
-            
-            String description = "";
-            if ("到达".equals(trackType)) {
-                description = "包裹已到达" + city + "转运中心，入库扫码成功";
-            } else if ("离开".equals(trackType)) {
-                description = "包裹已离开" + city + "转运中心，前往下一站";
-            } else {
-                description = "包裹已在" + city + "转运中心完成分拣";
-            }
-            
-            tracks.add(createTrack(logisticsId, trackingNo, currentTime, 
-                                 city, city + "转运中心", 
-                                 description, 
-                                 null, null, sortOrder--));
-        }
-        
-        // 节点24：到达配送网点
-        currentTime = signedTime.minusHours(2);
-        tracks.add(createTrack(logisticsId, trackingNo, currentTime, 
-                             logistics.getReceiverCity(), logistics.getReceiverCity() + "配送网点", 
-                             "包裹已到达" + logistics.getReceiverCity() + "配送网点，等待派送", 
-                             null, null, sortOrder--));
-        
-        // 节点25：派送中
-        currentTime = signedTime.minusHours(1);
-        tracks.add(createTrack(logisticsId, trackingNo, currentTime, 
-                             logistics.getReceiverCity(), logistics.getReceiverCity() + "片区", 
-                             "配送员已取件，正在派送中，联系电话：13900139001", 
-                             "配送员" + (char)('A' + RANDOM.nextInt(26)), 
-                             "13900139001", sortOrder--));
-        
-        // 节点26：签收成功
-        tracks.add(createTrack(logisticsId, trackingNo, signedTime, 
-                             logistics.getReceiverCity(), logistics.getReceiverAddress(), 
-                             "收件人：" + logistics.getReceiverName() + "，签收方式：本人签收，包裹完好无损", 
-                             "配送员" + (char)('A' + RANDOM.nextInt(26)), 
-                             "13900139001", sortOrder--));
-    }
-    
-    /**
-     * 创建派送中的物流轨迹
-     * @param tracks 轨迹列表
-     * @param logistics 物流信息
-     * @param shippedTime 发货时间
-     * @param currentTime 当前时间
-     */
-    private void createDeliveringTracks(List<LogisticsTrack> tracks, Logistics logistics, 
-                                      LocalDateTime shippedTime, LocalDateTime currentTime) {
-        // 实现类似createFullTracks，但只生成到派送中的轨迹
-        // 这里简化处理，调用createFullTracks并截取部分轨迹
-        createFullTracks(tracks, logistics, shippedTime, currentTime.plusHours(2));
-        // 移除最后一个签收节点
-        if (!tracks.isEmpty() && tracks.get(tracks.size() - 1).getDescription().contains("签收")) {
-            tracks.remove(tracks.size() - 1);
-        }
-    }
-    
-    /**
-     * 创建运输中的物流轨迹
-     * @param tracks 轨迹列表
-     * @param logistics 物流信息
-     * @param shippedTime 发货时间
-     * @param currentTime 当前时间
-     */
-    private void createTransitTracks(List<LogisticsTrack> tracks, Logistics logistics, 
-                                   LocalDateTime shippedTime, LocalDateTime currentTime) {
-        // 实现类似createFullTracks，但只生成到运输中的轨迹
-        // 这里简化处理，调用createFullTracks并截取部分轨迹
-        createFullTracks(tracks, logistics, shippedTime, currentTime.plusDays(2));
-        // 移除派送中和签收节点
-        int removeIndex = -1;
-        for (int i = 0; i < tracks.size(); i++) {
-            String desc = tracks.get(i).getDescription();
-            if (desc.contains("派送") || desc.contains("签收")) {
-                removeIndex = i;
-                break;
-            }
-        }
-        if (removeIndex != -1) {
-            tracks.subList(removeIndex, tracks.size()).clear();
-        }
-    }
-    
-    /**
-     * 创建单个物流轨迹节点
-     * @param logisticsId 物流ID
-     * @param trackingNo 物流单号
-     * @param operateTime 操作时间
-     * @param operateCity 操作城市
-     * @param operateLocation 操作地点
-     * @param description 描述
-     * @param courierName 快递员姓名
-     * @param courierPhone 快递员电话
-     * @param sortOrder 排序
-     * @return 物流轨迹节点
-     */
-    private LogisticsTrack createTrack(String logisticsId, String trackingNo, 
-                                     LocalDateTime operateTime, String operateCity, 
-                                     String operateLocation, String description, 
-                                     String courierName, String courierPhone, 
-                                     int sortOrder) {
-        return LogisticsTrack.builder()
-                .id(UUID.randomUUID().toString())
-                .logisticsId(logisticsId)
-                .trackingNo(trackingNo)
-                .operateTime(operateTime)
-                .operateCity(operateCity)
-                .operateLocation(operateLocation)
-                .description(description)
-                .courierName(courierName)
-                .courierPhone(courierPhone)
-                .sortOrder(sortOrder)
-                .deleted(0)
-                .build();
     }
     
     /**

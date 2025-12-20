@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.anqigou.common.response.ApiResponse;
 import com.anqigou.order.dto.CreateOrderRequest;
-import com.anqigou.order.entity.Order;
 import com.anqigou.order.service.OrderService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
@@ -66,34 +65,6 @@ public class OrderController {
         } catch (Exception e) {
             log.error("Get order detail failed", e);
             return ApiResponse.failure(500, "Get order detail failed: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * 获取订单信息（供内部服务调用，不需要验证用户身份）
-     * 这个接口专门给支付服务等内部服务调用，用于获取订单基本信息
-     */
-    @GetMapping("/internal/{orderId}")
-    public ApiResponse<Object> getOrderInfo(@PathVariable String orderId) {
-        try {
-            Order order = orderService.getOrderById(orderId);
-            if (order == null) {
-                return ApiResponse.failure(404, "订单不存在");
-            }
-            
-            // 返回订单基本信息
-            java.util.Map<String, Object> orderInfo = new java.util.HashMap<>();
-            orderInfo.put("id", order.getId());
-            orderInfo.put("orderNo", order.getOrderNo());
-            orderInfo.put("userId", order.getUserId());
-            orderInfo.put("totalAmount", order.getTotalAmount());
-            orderInfo.put("actualPayment", order.getActualPayment());
-            orderInfo.put("status", order.getStatus());
-            
-            return ApiResponse.success(orderInfo);
-        } catch (Exception e) {
-            log.error("Get order info failed: orderId={}", orderId, e);
-            return ApiResponse.failure(500, "Get order info failed: " + e.getMessage());
         }
     }
     
