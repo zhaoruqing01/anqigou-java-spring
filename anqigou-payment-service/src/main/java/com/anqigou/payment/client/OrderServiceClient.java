@@ -30,7 +30,7 @@ public interface OrderServiceClient {
      * 订单发货
      */
     @PostMapping("/order/{orderId}/ship")
-    ApiResponse<Void> shipOrder(@PathVariable("orderId") String orderId, 
+    ApiResponse<String> shipOrder(@PathVariable("orderId") String orderId, 
                                  @RequestParam("courierCompany") String courierCompany, 
                                  @RequestParam("trackingNo") String trackingNo);
 }

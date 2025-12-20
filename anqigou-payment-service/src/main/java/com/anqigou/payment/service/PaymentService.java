@@ -1,5 +1,7 @@
 package com.anqigou.payment.service;
 
+import com.anqigou.payment.dto.MockPayRequest;
+import com.anqigou.payment.dto.MockPayResponse;
 import com.anqigou.payment.dto.PaymentRequest;
 
 /**
@@ -44,6 +46,9 @@ public interface PaymentService {
     
     /**
      * 模拟支付 - 直接完成支付
+     * 
+     * @param request 模拟支付请求
+     * @return 支付结果
      */
-    Object mockPay(PaymentRequest request);
+    MockPayResponse mockPay(MockPayRequest request);
 }

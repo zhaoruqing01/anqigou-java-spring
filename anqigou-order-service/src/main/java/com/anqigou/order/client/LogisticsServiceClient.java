@@ -22,7 +22,7 @@ public interface LogisticsServiceClient {
      * @param trackingNo 快递单号
      * @return 响应
      */
-    @PostMapping("/api/logistics/ship")
+    @PostMapping("/logistics/ship")
     ApiResponse<Void> shipOrder(@RequestParam("orderId") String orderId,
                                 @RequestParam("courierCompany") String courierCompany,
                                 @RequestParam("trackingNo") String trackingNo);
@@ -33,7 +33,7 @@ public interface LogisticsServiceClient {
      * @param orderId 订单ID
      * @return 物流详情
      */
-    @GetMapping("/api/logistics/order/{orderId}")
+    @GetMapping("/logistics/order/{orderId}")
     ApiResponse<Object> getLogisticsDetail(@PathVariable("orderId") String orderId);
     
     /**
@@ -42,6 +42,6 @@ public interface LogisticsServiceClient {
      * @param orderId 订单ID
      * @return 响应
      */
-    @PostMapping("/api/logistics/confirm-receipt/{orderId}")
+    @PostMapping("/logistics/confirm-receipt/{orderId}")
     ApiResponse<Void> confirmReceipt(@PathVariable("orderId") String orderId);
 }

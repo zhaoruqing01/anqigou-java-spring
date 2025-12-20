@@ -7,6 +7,7 @@ import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -26,6 +27,9 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     
     @Autowired(required = false)
     private JwtUtil jwtUtil;
+    
+    // Ant路径匹配器，用于匹配请求路径
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
     
     // 无需认证的路径
     private static final String[] ALLOW_PATHS = {
@@ -53,7 +57,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
             "/api/orders/**",
             
             // 支付相关
-            "/api/payment",
             "/api/payment/**",
             
             // 物流相关
@@ -143,16 +146,23 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
      * 判断是否为无需认证的路径
      */
     private boolean isAllowedPath(String path) {
+        // 记录所有匹配尝试，便于调试
+        log.debug("JwtAuthFilter - Checking if path {} is allowed", path);
+        
+        // 直接添加特殊处理，确保/api/payment/mock/pay路径总是允许访问
+        if ("/api/payment/mock/pay".equals(path)) {
+            log.debug("JwtAuthFilter - Path {} is explicitly allowed", path);
+            return true;
+        }
+        
         for (String allowedPath : ALLOW_PATHS) {
-            if (allowedPath.endsWith("/**")) {
-                String prefix = allowedPath.substring(0, allowedPath.length() - 3);
-                if (path.startsWith(prefix)) {
-                    return true;
-                }
-            } else if (path.equals(allowedPath)) {
+            // 使用AntPathMatcher进行路径匹配，确保与Spring Cloud Gateway的Path谓词使用相同的匹配逻辑
+            if (pathMatcher.match(allowedPath, path)) {
+                log.debug("JwtAuthFilter - Path {} matches allowed path {}", path, allowedPath);
                 return true;
             }
         }
+        log.warn("JwtAuthFilter - Path {} does not match any allowed path, access denied", path);
         return false;
     }
     

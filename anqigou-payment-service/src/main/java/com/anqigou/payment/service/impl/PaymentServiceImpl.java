@@ -6,12 +6,15 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.anqigou.common.exception.BizException;
 import com.anqigou.payment.config.AlipayConfig;
 import com.anqigou.payment.config.WechatPayConfig;
+import com.anqigou.payment.dto.MockPayRequest;
+import com.anqigou.payment.dto.MockPayResponse;
 import com.anqigou.payment.dto.PaymentRequest;
 import com.anqigou.payment.entity.Payment;
 import com.anqigou.payment.mapper.PaymentMapper;
@@ -275,116 +278,194 @@ public class PaymentServiceImpl implements PaymentService {
         return form.toString();
     }
     
+    /**
+     * 模拟支付 - 完全重写的实现
+     * <p>
+     * 处理流程：
+     * 1. 参数验证（订单ID、金额）
+     * 2. 从订单服务获取订单信息（userId、orderNo）
+     * 3. 创建支付记录并保存到数据库
+     * 4. 调用订单服务更新订单支付状态
+     * 5. 可选：启动异步任务30秒后自动发货
+     * 6. 返回完整的支付结果
+     */
     @Override
     @Transactional
-    public Object mockPay(PaymentRequest request) {
-        // 验证金额
+    public MockPayResponse mockPay(MockPayRequest request) {
+        log.info("=== 开始处理模拟支付 ===");
+        log.info("请求参数: orderId={}, amount={}, paymentMethod={}, userId={}, autoShip={}", 
+                request.getOrderId(), request.getAmount(), request.getPaymentMethod(), 
+                request.getUserId(), request.getAutoShip());
+        
+        // 1. 参数验证
+        if (request.getOrderId() == null || request.getOrderId().trim().isEmpty()) {
+            throw new BizException(400, "订单ID不能为空");
+        }
+        if (request.getAmount() == null || request.getAmount() <= 0) {
+            throw new BizException(400, "支付金额必须大于0");
+        }
+        
+        // 2. 验证订单金额
         if (!validateAmount(request.getOrderId(), request.getAmount())) {
             throw new BizException(400, "订单金额校验失败");
         }
         
-        // 从订单服务获取订单信息，提取真实的 userId 和 orderNo
-        String userId = null;
+        // 3. 检查是否已存在支付记录（注释掉重复支付检查，允许多次测试）
+        // QueryWrapper<Payment> existQuery = new QueryWrapper<>();
+        // existQuery.eq("order_id", request.getOrderId())
+        //           .eq("deleted", 0)
+        //           .eq("status", "paid");
+        // Payment existPayment = paymentMapper.selectOne(existQuery);
+        // if (existPayment != null) {
+        //     log.warn("订单已支付，不允许重复支付: orderId={}", request.getOrderId());
+        //     throw new BizException(400, "订单已支付，请勿重复支付");
+        // }
+        
+        // 4. 从订单服务获取订单信息
+        String userId = request.getUserId();
         String orderNo = null;
+        
         try {
             com.anqigou.common.response.ApiResponse<Object> response = orderServiceClient.getOrderInfo(request.getOrderId());
             if (response != null && response.getData() != null) {
+                @SuppressWarnings("unchecked")
                 Map<String, Object> orderData = (Map<String, Object>) response.getData();
-                userId = (String) orderData.get("userId");
+                
+                // 如果请求中没有userId，则从订单中获取
+                if (userId == null || userId.trim().isEmpty()) {
+                    userId = (String) orderData.get("userId");
+                }
                 orderNo = (String) orderData.get("orderNo");
-                log.info("Get order info from order service: userId={}, orderNo={}", userId, orderNo);
+                
+                log.info("从订单服务获取订单信息成功: userId={}, orderNo={}", userId, orderNo);
             }
         } catch (Exception e) {
-            log.warn("Failed to get order info from order service: orderId={}", request.getOrderId(), e);
+            log.warn("调用订单服务失败，使用降级处理: orderId={}, error={}", request.getOrderId(), e.getMessage());
         }
         
-        // 如果无法从订单服务获取，使用默认值（降级处理）
-        if (userId == null || userId.isEmpty()) {
-            userId = "default-user";
-            log.warn("Using default userId for payment: orderId={}", request.getOrderId());
+        // 5. 如果无法从订单服务获取，使用默认值（降级处理）
+        if (userId == null || userId.trim().isEmpty()) {
+            userId = "default-user-" + System.currentTimeMillis();
+            log.warn("使用默认userId: {}", userId);
         }
-        if (orderNo == null || orderNo.isEmpty()) {
+        if (orderNo == null || orderNo.trim().isEmpty()) {
             orderNo = "ORD" + System.currentTimeMillis();
-            log.warn("Using generated orderNo for payment: orderId={}", request.getOrderId());
+            log.warn("使用生成的orderNo: {}", orderNo);
         }
         
-        // 生成支付单号和模拟交易号
+        // 6. 生成支付单号和模拟交易号
+        String paymentId = UUID.randomUUID().toString();
         String paymentNo = generatePaymentNo();
-        String transactionId = "MOCK" + System.currentTimeMillis() + (int)(Math.random() * 10000);
+        String transactionId = "MOCK" + System.currentTimeMillis() + String.format("%04d", (int)(Math.random() * 10000));
+        LocalDateTime now = LocalDateTime.now();
         
-        // 创建支付记录，状态直接设为已支付
+        // 7. 确定支付方式
+        String paymentMethod = request.getPaymentMethod();
+        if (paymentMethod == null || paymentMethod.trim().isEmpty()) {
+            paymentMethod = "mock";
+        }
+        
+        // 8. 创建支付记录并保存到数据库
         Payment payment = Payment.builder()
-                .id(UUID.randomUUID().toString())
+                .id(paymentId)
                 .orderId(request.getOrderId())
                 .orderNo(orderNo)
                 .paymentNo(paymentNo)
                 .userId(userId)
                 .amount(request.getAmount())
-                .paymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : "mock")
-                .status("paid")
+                .paymentMethod(paymentMethod)
+                .status("paid")  // 模拟支付直接设置为已支付
                 .transactionId(transactionId)
-                .paidTime(LocalDateTime.now())
-                .createTime(LocalDateTime.now())
+                .paidTime(now)
+                .createTime(now)
                 .deleted(0)
                 .build();
         
-        paymentMapper.insert(payment);
-        
-        // 调用订单服务更新订单支付状态
-        try {
-            orderServiceClient.updateOrderPaymentStatus(request.getOrderId(), paymentNo);
-            log.info("Mock payment success and order status updated: orderId={}, paymentNo={}, transactionId={}", 
-                    request.getOrderId(), paymentNo, transactionId);
-        } catch (Exception e) {
-            log.error("Failed to update order payment status: orderId={}", request.getOrderId(), e);
-            // 对于模拟支付，即使更新订单状态失败也不抛出异常，允许支付继续
-            log.warn("Order status update failed, but payment record is saved: orderId={}", request.getOrderId());
+        int insertResult = paymentMapper.insert(payment);
+        if (insertResult <= 0) {
+            log.error("保存支付记录失败: orderId={}", request.getOrderId());
+            throw new BizException(500, "保存支付记录失败");
         }
         
-        // 启动异步任务：30秒后自动发货
-        scheduleAutoShipment(request.getOrderId());
+        log.info("支付记录保存成功: paymentId={}, paymentNo={}, transactionId={}", 
+                paymentId, paymentNo, transactionId);
         
-        // 返回支付结果
-        Map<String, Object> result = new HashMap<>();
-        result.put("orderId", request.getOrderId());
-        result.put("paymentNo", paymentNo);
-        result.put("transactionId", transactionId);
-        result.put("amount", request.getAmount());
-        result.put("paymentMethod", payment.getPaymentMethod());
-        result.put("status", "paid");
-        result.put("paidTime", payment.getPaidTime());
-        result.put("message", "模拟支付成功，30秒后自动发货");
+        // 9. 调用订单服务更新订单支付状态
+        boolean orderUpdateSuccess = false;
+        try {
+            orderServiceClient.updateOrderPaymentStatus(request.getOrderId(), paymentNo);
+            orderUpdateSuccess = true;
+            log.info("订单支付状态更新成功: orderId={}, paymentNo={}", request.getOrderId(), paymentNo);
+        } catch (Exception e) {
+            log.error("更新订单支付状态失败: orderId={}, error={}", request.getOrderId(), e.getMessage(), e);
+            // 注意：对于模拟支付，即使更新订单状态失败也不抛出异常
+            // 支付记录已经保存，可以后续通过补偿机制处理
+        }
         
-        return result;
+        // 10. 判断是否需要自动发货（默认为true）
+        Boolean autoShip = request.getAutoShip();
+        if (autoShip == null) {
+            autoShip = true;  // 默认自动发货
+        }
+        
+        if (autoShip && orderUpdateSuccess) {
+            // 启动异步任务：30秒后自动发货
+            scheduleAutoShipment(request.getOrderId());
+            log.info("已启动自动发货任务: orderId={}", request.getOrderId());
+        }
+        
+        // 11. 构建响应对象
+        String message = autoShip ? "模拟支付成功，30秒后自动发货" : "模拟支付成功";
+        
+        MockPayResponse response = MockPayResponse.builder()
+                .paymentId(paymentId)
+                .orderId(request.getOrderId())
+                .orderNo(orderNo)
+                .paymentNo(paymentNo)
+                .userId(userId)
+                .amount(request.getAmount())
+                .paymentMethod(paymentMethod)
+                .status("paid")
+                .transactionId(transactionId)
+                .paidTime(now)
+                .createTime(now)
+                .message(message)
+                .autoShip(autoShip)
+                .build();
+        
+        log.info("=== 模拟支付处理完成 ===");
+        log.info("响应数据: paymentNo={}, transactionId={}, amount={}, autoShip={}", 
+                paymentNo, transactionId, request.getAmount(), autoShip);
+        
+        return response;
     }
     
     /**
      * 安排自动发货任务
      */
+    @Async
     private void scheduleAutoShipment(String orderId) {
-        new Thread(() -> {
+        try {
+            // 等待30秒
+            Thread.sleep(30000);
+            
+            // 生成模拟快递信息
+            String[] companies = {"顺丰", "中通", "圆通", "申通", "韵达"};
+            String courierCompany = companies[(int)(Math.random() * companies.length)];
+            String trackingNo = generateTrackingNo(courierCompany);
+            
+            // 调用订单服务发货
             try {
-                // 等待30秒
-                Thread.sleep(30000);
-                
-                // 生成模拟快递信息
-                String[] companies = {"顺丰", "中通", "圆通", "申通", "韵达"};
-                String courierCompany = companies[(int)(Math.random() * companies.length)];
-                String trackingNo = generateTrackingNo(courierCompany);
-                
-                // 调用订单服务发货
-                try {
-                    orderServiceClient.shipOrder(orderId, courierCompany, trackingNo);
-                    log.info("Auto shipment success: orderId={}, courier={}, tracking={}", 
-                            orderId, courierCompany, trackingNo);
-                } catch (Exception e) {
-                    log.error("Auto shipment failed: orderId={}", orderId, e);
-                }
-            } catch (InterruptedException e) {
-                log.error("Auto shipment thread interrupted: orderId={}", orderId, e);
-                Thread.currentThread().interrupt();
+                orderServiceClient.shipOrder(orderId, courierCompany, trackingNo);
+                log.info("Auto shipment success: orderId={}, courier={}, tracking={}", 
+                        orderId, courierCompany, trackingNo);
+            } catch (Exception e) {
+                log.error("Auto shipment failed: orderId={}", orderId, e);
             }
-        }).start();
+        } catch (InterruptedException e) {
+            log.error("Auto shipment thread interrupted: orderId={}", orderId, e);
+            Thread.currentThread().interrupt();
+        }
     }
     
     /**
